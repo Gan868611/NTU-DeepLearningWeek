@@ -1,0 +1,131 @@
+/* src/components/HealthProfile.css */
+.health-profile {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: #bbb;
+    margin-bottom: 20px;
+  }
+  
+  .section {
+    background: rgba(255, 255, 255, 0.1); /* Transparent overlay effect */
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #ffcc00;
+  }
+  
+  label {
+    display: block;
+    font-size: 14px;
+    margin: 5px 0;
+    color: #ddd;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+  
+  .radio-group {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px 0;
+  }
+  
+  .radio-group input {
+    margin-right: 5px;
+  }
+  
+  .update-btn {
+    width: 100%;
+    background: #9141ac;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .update-btn:hover {
+    background: #b350d1;
+  }
+  
+  /* Stats Section */
+  .stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    height: 8px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .health {
+    background: #00ff88;
+  }
+  
+  .vitality {
+    background: #ffc107;
+  }
+
+  /* Fix dropdown menu styling */
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2); /* Match your theme */
+    color: white; /* Ensure text is visible */
+    appearance: none; /* Removes default browser styling */
+    cursor: pointer;
+  }
+
+  /* Dropdown arrow styling */
+  select:focus {
+    outline: none;
+    border: 2px solid #00ff88; /* Green glow effect */
+  }
+
+  /* Style dropdown options */
+  option {
+    background: #333; /* Dark background */
+    color: white; /* White text */
+    padding: 5px;
+  }
+
+  /* Highlight selected option */
+  select option:checked {
+    background: #00ff88; /* Highlighted option */
+    color: black; /* Contrast */
+  }
+
+  

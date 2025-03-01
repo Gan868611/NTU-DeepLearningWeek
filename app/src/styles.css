@@ -1,0 +1,144 @@
+/* src/styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  background-color: #222;
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+}
+
+h1, h2 {
+  font-size: 20px;
+}
+
+.pixel-font {
+  font-size: 18px;
+  text-shadow: 2px 2px #000;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dashboard, .profile-setup, .food-recognition, .buffs-screen, .battle-screen {
+  border: 3px solid #fff;
+  padding: 20px;
+  border-radius: 10px;
+  background: #333;
+  width: 90%;
+  max-width: 400px;
+}
+
+.pixel-button {
+  font-family: 'Press Start 2P', cursive;
+  background: #ffcc00;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.pixel-button:hover {
+  background: #ffaa00;
+}
+
+.nav-buttons button {
+  background: #444;
+  color: white;
+  border: 2px solid white;
+  margin: 5px;
+  padding: 10px;
+}
+
+.buff-icon {
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #666;
+  height: 10px;
+  border: 2px solid white;
+}
+
+.progress-fill {
+  height: 10px;
+  background: #0f0;
+}
+
+.character-sprite {
+  width: 100px;
+  height: 100px;
+}
+
+.food-preview {
+  width: 100px;
+  height: 100px;
+  border: 2px solid white;
+}
+
+.food-result {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Health Risk Section */
+.health-risk {
+    background: rgba(255, 255, 255, 0.1); /* Transparent effect */
+    padding: 15px;
+    border-radius: 10px;
+    text-align: left;
+    margin-top: 20px;
+  }
+  
+  .health-risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .health-risk h3 {
+    font-size: 16px;
+    color: white;
+  }
+  
+  .shield-icon {
+    font-size: 20px;
+    color: #00ff88;
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    height: 8px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .progress-fill.health {
+    background: #00ff88; /* Green for low risk */
+  }
+  
+  /* Risk Level Text */
+  .risk-text {
+    font-size: 14px;
+    color: #00ff88;
+    margin-top: 5px;
+  }
+
+@import "./components/BottomNavBar.css";
