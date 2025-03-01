@@ -1,6 +1,7 @@
 // src/App.js
 import React, { useState } from "react";
 import Dashboard from "./components/Dashboard";
+import { ProfileProvider } from "./components/ProfileContext";
 import HealthProfile from "./components/HealthProfile";
 import FoodRecognition from "./components/FoodRecognition";
 import BattleStats from "./components/BattleStats";
@@ -22,15 +23,17 @@ const App = () => {
   };
 
   return (
-    <div className="app">
-      {screen === "Dashboard" && <Dashboard healthRisk="Low" buffs={buffs} countdown={12} />}
-      {screen === "HealthProfile" && <HealthProfile onProfileSubmit={handleProfileSubmit} />}
-      {screen === "FoodRecognition" && <FoodRecognition />}
-      {screen === "BattleStats" && <BattleStats />}
-      {screen === "WeeklyBattle" && <WeeklyBattle playerStats={buffs} monsterStats={{ health: 100 }} />}
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar setScreen={setScreen} />
-    </div>
+    <ProfileProvider>
+      <div className="app">
+        {screen === "Dashboard" && <Dashboard healthRisk="Low" buffs={buffs} countdown={12} />}
+        {screen === "HealthProfile" && <HealthProfile onProfileSubmit={handleProfileSubmit} />}
+        {screen === "FoodRecognition" && <FoodRecognition />}
+        {screen === "BattleStats" && <BattleStats />}
+        {screen === "WeeklyBattle" && <WeeklyBattle playerStats={buffs} monsterStats={{ health: 100 }} />}
+        {/* Bottom Navigation Bar */}
+        <BottomNavBar setScreen={setScreen} />
+      </div>
+    </ProfileProvider>
   );
 };
 

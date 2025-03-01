@@ -1,33 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useContext  } from "react";
+import { ProfileContext } from "./ProfileContext";
 import "./HealthProfile.css";
 
 const HealthProfile = ({ onProfileSubmit }) => {
-  const [profile, setProfile] = useState({
-    age: 25,
-    gender: "Male",
-    family_history: "No known history",
-    smoking: "Never smoked",
-    exercise: "Moderate",
-    alcohol: "Occasional",
-  });
+  const { profile, updateProfile } = useContext(ProfileContext);
 
   const [riskLevel, setRiskLevel] = useState(null); // 🔹 Store backend response
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    updateProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
   const submitProfile = async () => {
     setLoading(true);
     setError(null);
 
+    // 🔹 Convert `age` to an integer (FastAPI expects `int`)
+    const formattedProfile = {
+      ...profile,
+      age: parseInt(profile.age, 10) || 0,  // Convert age to a number, default to 0 if empty
+    };
+    console.log("Sending to backend:", JSON.stringify(formattedProfile));  // ✅ Log request payload
+
     try {
       const response = await fetch("http://127.0.0.1:8000/health-risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
+        body: JSON.stringify(formattedProfile),
       });
 
       if (!response.ok) {
@@ -36,7 +37,7 @@ const HealthProfile = ({ onProfileSubmit }) => {
 
       const data = await response.json();
       setRiskLevel(data.risk_level); // 🔹 Store the returned health risk level
-      onProfileSubmit(profile); // 🔹 Update UI state in parent component
+      onProfileSubmit(formattedProfile); // 🔹 Update UI state in parent component
     } catch (err) {
       console.error("Error:", err);
       setError("Failed to fetch health risk. Please try again.");
@@ -73,7 +74,7 @@ const HealthProfile = ({ onProfileSubmit }) => {
       <div className="section">
         <h3>⚕️ Health Factors</h3>
         <label>Family History of Heart Disease</label>
-        <select name="familyHistory" value={profile.familyHistory} onChange={handleChange}>
+        <select name="family_history" value={profile.family_history} onChange={handleChange}>
           <option>No known history</option>
           <option>One parent</option>
           <option>Both parents</option>
