@@ -1,0 +1,271 @@
+body {
+    font-family: 'Press Start 2P', sans-serif;
+    background-color: #E8E8E8;
+    text-align: center;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Hide any overflow */
+}
+
+/* Game Container */
+.game-container {
+    border: 2px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    width: 100vw;  /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    position: relative;
+}
+
+/* Battle Area */
+.battle-area {
+    position: relative;
+    width: 400px;
+    height: 280px; /* Increased height for more space */
+    border: 2px solid black;
+    background-color: #e6ebe6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 4px 4px 0 black, 8px 8px 0 white; /* Dual-border effect */
+}
+
+
+.player-container {
+    position: absolute;
+    bottom: 10px;
+    left: 30px;
+    text-align: center;
+}
+
+.monster-container {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    text-align: center;
+}
+
+.player-container img, .monster-container img {
+    width: 120px;
+    height: 120px;
+    image-rendering: pixelated;
+}
+
+/* Retro Status Box */
+.status-box {
+    width: 100%;
+    background-color: white;
+    padding: 5px;
+    font-size: 12px;
+    border: 2px solid black;
+    box-shadow: 3px 3px 0 black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Health Bar */
+.hp-bar-container {
+    width: 100px;
+    height: 10px;
+    background-color: lightgray;
+    border: 1px solid black;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    /* REMOVE: justify-content: center; */
+}
+
+/* Smooth Health Bar Transition */
+.hp-bar {
+    height: 10px;
+    background-color: green;
+    width: 100%;
+    transition: width 0.5s ease;
+    margin-left: 0; /* Ensure health bar aligns left */
+}
+
+/* Battle Log */
+.battle-log {
+    position: absolute;
+    top: 320px; /* Reduced to make room for battle area */
+    width: 400px;
+    height: 70px; /* Reduced height */
+    padding: 10px;
+    background-color: white;
+    border: 3px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 4px 4px 0 black, 8px 8px 0 white;
+    font-size: 12px; /* Slightly bigger font */
+    line-height: 1.2;
+}
+
+.menu-buttons,
+.attack-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    bottom: 20px; /* Keeps it at the bottom */
+    width: 100%;
+}
+
+/* Menu Buttons */
+.menu-buttons button,
+.attack-menu button {
+    width: 200px;
+    padding: 10px;
+    margin: 5px;
+    background-color: white;
+    border: 2px solid black;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 12px; /* Slightly bigger font */
+    box-shadow: 2px 2px 0 black;
+}
+
+/* Hover Effect */
+.menu-buttons button:hover,
+.attack-menu button:hover {
+    background-color: #CCCCCC;
+    color: black;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 black;
+}
+
+/* Tooltip */
+.tooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+    max-width: 250px;
+    text-align: left;
+    z-index: 1000;
+    pointer-events: none;
+    white-space: pre-wrap;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Buff and Debuff Styles */
+.buff {
+    color: #00FF00;
+    font-weight: bold;
+}
+
+.debuff {
+    color: #FF3333;
+    font-weight: bold;
+}
+
+/* Attack Animation */
+@keyframes attackMove {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-50px); }
+    100% { transform: translateX(0); }
+}
+
+.attack-animation {
+    animation: attackMove 0.5s ease-in-out;
+}
+
+/* Buff and Debuff Glow Effects */
+.buff-glow {
+    filter: drop-shadow(0 0 15px #00FF00); /* Green glow for buffs */
+    transition: filter 0.3s;
+}
+
+.debuff-glow {
+    filter: drop-shadow(0 0 15px #FF3333); /* Red glow for debuffs */
+    transition: filter 0.3s;
+}
+
+/* Screen Shake Effect */
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-5px, 5px); }
+    50% { transform: translate(5px, -5px); }
+    75% { transform: translate(-5px, -5px); }
+}
+
+.shake-effect {
+    animation: shake 0.3s ease;
+}
+
+@keyframes hit-flash {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(2) hue-rotate(-30deg); }
+    100% { filter: brightness(1); }
+}
+
+.hit-flash {
+    animation: hit-flash 0.3s ease-out;
+}
+
+
+@keyframes moveEffect {
+    0% {
+        left: 20%;
+        top: 80%;
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        left: 60%;
+        top: 20%;
+        opacity: 0.8;
+        transform: scale(1.2);
+    }
+    100% {
+        left: 80%;
+        top: 10%;
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+@keyframes moveEffectReverse {
+    0% {
+        left: 80%;
+        top: 20%;
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        left: 60%;
+        top: 20%;
+        opacity: 0.8;
+        transform: scale(1.2);
+    }
+    100% {
+        left: 20%;
+        top: 80%;
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+/* Make sure this class does not override the animation name */
+.moving-effect {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    z-index: 9999;
+    pointer-events: none;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
+}

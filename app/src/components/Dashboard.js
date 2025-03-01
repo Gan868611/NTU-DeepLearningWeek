@@ -17,12 +17,12 @@ const Dashboard = ({ healthRisk, countdown }) => {
     : 0.5; // Default 0.5 if no meal logs
 
   const avgSleepHours = profile.sleep_hours || 6; // Default to 6 if not set
-  const avgExerciseHours = profile.exercise || 3; // Default to 3 if not set
+  const avgExerciseCount = profile.exercise || 3; // Default to 3 if not set
 
   // 🔹 Compute Buff Level
   const weightedBuff = (avgHealthScore * 0.7) + 
                        ((avgSleepHours / 8) * 0.15) + 
-                       ((avgExerciseHours / 5) * 0.15);
+                       ((avgExerciseCount / 5) * 0.15);
   
   const buffLevel = Math.round(weightedBuff * 15); // Scale to 15
   const buffLevelClamped = Math.max(0, Math.min(buffLevel, 15)); // Ensure it's between 0-15
@@ -43,12 +43,12 @@ const Dashboard = ({ healthRisk, countdown }) => {
         <div className="stats-box">
           <h3>🌙</h3>
           <p>Avg Sleep</p>
-          <p className={getStatColor(avgSleepHours, "sleep")}>{weightedBuff} hrs</p>
+          <p className={getStatColor(avgSleepHours, "sleep")}>{avgSleepHours} hrs</p>
         </div>
         <div className="stats-box">
           <h3>🏃</h3>
           <p>Avg Exercise</p>
-          <p className={getStatColor(avgExerciseHours, "exercise")}>{avgExerciseHours} hrs</p>
+          <p className={getStatColor(avgExerciseCount, "exercise")}>{avgExerciseCount} times</p>
         </div>
       </div>
 
@@ -74,7 +74,7 @@ const Dashboard = ({ healthRisk, countdown }) => {
       {/* Health Risk Level Section */}
       <div className="health-risk">
         <div className="health-risk-header">
-          <h3>Health Risk Level</h3>
+          <h3>Disease Risk Level</h3>
           <span className="shield-icon">🛡️</span>
         </div>
         <div className="progress-bar">

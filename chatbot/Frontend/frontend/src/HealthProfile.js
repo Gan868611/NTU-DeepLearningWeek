@@ -23,7 +23,7 @@ const HealthProfile = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -74,6 +74,14 @@ const HealthProfile = () => {
       {/* Health Factors Section */}
       <div className="section">
         <h3>⚕️ Health Factors</h3>
+
+        <label>Exercise Level</label>
+        <select name="exercise" value={profile.exercise} onChange={handleChange}>
+          <option>No Exercise</option>
+          <option>Light</option>
+          <option>Moderate</option>
+          <option>Yes</option>
+        </select>
 
         <label>Smoking History</label>
         <select name="smoking_history" value={profile.smoking_history} onChange={handleChange}>
@@ -130,7 +138,7 @@ const HealthProfile = () => {
       {/* Display Health Risk Score */}
       {riskScore !== null && (
         <div className="section">
-          <h3>🛡️ Your Disease Risk Level</h3>
+          <h3>🛡️ Your Health Risk Level</h3>
           <p className={`risk-level ${riskCategory.toLowerCase()}`}>{riskCategory} ({riskScore})</p>
         </div>
       )}

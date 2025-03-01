@@ -215,7 +215,7 @@ class HealthProfile(BaseModel):
     age_category: str
     sex: str
     bmi: float
-    exercise: str
+    exercise: int
     skin_cancer: str
     other_cancer: str
     depression: str
@@ -230,7 +230,7 @@ class HealthProfile(BaseModel):
 def calculate_health_risk(profile: HealthProfile):
     # Convert categorical values
     sex = 1 if profile.sex == "Male" else 0
-    exercise = 1 if profile.exercise == "Yes" else 0
+    exercise = 1 if profile.exercise > 2 else 0
     skin_cancer = 1 if profile.skin_cancer == "Yes" else 0
     other_cancer = 1 if profile.other_cancer == "Yes" else 0
     depression = 1 if profile.depression == "Yes" else 0

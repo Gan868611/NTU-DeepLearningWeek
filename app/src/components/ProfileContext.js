@@ -9,10 +9,9 @@ export const ProfileProvider = ({ children }) => {
     height: "",
     bmi: "", // Auto-calculated
     age_category: "", // Auto-determined
-    exercise: "No Exercise",
     cancer_history: "No Cancer",
     diabetes_status: "No Diabetes",
-    exercise: 8, // 🔹 Store exercise hours (default 0)
+    exercise: 6, // 🔹 Store exercise count (default 0)
     sleep_hours: 8, // 🔹 Store sleep hours (default 0)
     depression: "No",
     arthritis: "No",
@@ -85,8 +84,8 @@ export const ProfileProvider = ({ children }) => {
     setProfile((prev) => ({ ...prev, sleep_hours: hours }));
   };
 
-  const updateExerciseHours = (hours) => {
-    setProfile((prev) => ({ ...prev, exercise: hours }));
+  const updateExerciseCount = (count) => {
+    setProfile((prev) => ({ ...prev, exercise: count }));
   };
   
   const clearMealLog = () => {
@@ -100,7 +99,7 @@ export const ProfileProvider = ({ children }) => {
 
   return (
     <ProfileContext.Provider value={{ profile, updateProfile, clearProfile, updateRiskLevel, 
-    addMealToLog, clearMealLog, updateSleepHours, updateExerciseHours }}>
+    addMealToLog, clearMealLog, updateSleepHours, updateExerciseCount }}>
       {children}
     </ProfileContext.Provider>
   );
