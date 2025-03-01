@@ -54,7 +54,7 @@ def generate_commentary():
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a fast-paced and very concise game commentator. Keep responses very short, ideally one sentence."},
+                {"role": "system", "content": "You are a fast-paced and very concise game commentator. Keep responses very short, ideally one short sentence. Here is either the ability used or the effect done"},
                 {"role": "user", "content": f"Very short commentary: '{battle_log}'"}
             ],
             max_tokens=20,  # Further reduce max tokens for ultra-short responses
@@ -125,10 +125,12 @@ def attack():
         game_state["message"] = f"You used {ability}! Monster lost {damage} HP. {event_message}"
 
         if game_state["monster"]["hp"] <= 0:
-            game_state["message"] = "You won! The monster is defeated."
-
-        game_state["turn"] = "enemy"
-
+            game_state["message"] = f"You used {ability}! Monster lost {damage} HP. {event_message}"
+            # Keep the turn as "enemy" temporarily to show the final attack message
+            game_state["turn"] = "final_attack"
+        else:
+            game_state["message"] = f"You used {ability}! Monster lost {damage} HP. {event_message}"
+            game_state["turn"] = "enemy"
     return jsonify({
         "player": {
             "hp": game_state["player"]["hp"],
@@ -161,12 +163,13 @@ def enemy_turn():
     if game_state["turn"] == "enemy":
         game_state["player"]["hp"] -= damage
         game_state["player"]["hp"] = max(game_state["player"]["hp"], 0)
-        game_state["message"] = f"Monster used {selected_attack}! You lost {damage} HP."
 
         if game_state["player"]["hp"] <= 0:
-            game_state["message"] = "You lost! The enemy defeated you."
-
-        game_state["turn"] = "player"
+            game_state["message"] = f"Monster used {selected_attack}! You lost {damage} HP."
+            game_state["turn"] = "final_attack"
+        else:
+            game_state["message"] = f"Monster used {selected_attack}! You lost {damage} HP."
+            game_state["turn"] = "player"
 
     return jsonify({
         "player": {
@@ -245,7 +248,7 @@ def reset():
 
     # Scale monster stats based on risk
     base_monster_attack = 10
-    base_monster_hp = 100
+    base_monster_hp = 50
 
     monster_attack = int(base_monster_attack * (1 + risk_percentage / 100))
     monster_hp = int(base_monster_hp * (1 + risk_percentage / 200))
@@ -301,9 +304,10 @@ def reset():
             game_state["message"] += " 😴 Debuff: Fatigue! 50% chance to deal half damage."
 
     # Update `game_state` with buffs and debuffs
+    base_player_hp = 50
     game_state["player"].update({
-        "hp": 100 + food_health_bonus,
-        "max_hp": 100 + food_health_bonus,
+        "hp": base_player_hp + food_health_bonus,
+        "max_hp": base_player_hp + food_health_bonus,
         "attack": 20 + exercise_attack_bonus,
         "crit_chance": crit_chance_bonus,
         "num_exercise": num_exercise,
@@ -323,9 +327,6 @@ def reset():
     game_state["message"] = f"Your health stats have been applied. Monster risk: {risk_percentage}%."
 
     return jsonify(game_state)
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
