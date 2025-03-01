@@ -5,7 +5,7 @@ class HeartDiseaseNN(nn.Module):
     def __init__(self, input_dim):
         super(HeartDiseaseNN, self).__init__()
         self.fc1 = nn.Linear(input_dim, 128)  # First hidden layer
-        self.bn1 = nn.BatchNorm1d(128)  # Batch Normalization
+        self.bn1 = nn.BatchNorm1d(128)  
         self.fc2 = nn.Linear(128, 64)  # Second hidden layer
         self.bn2 = nn.BatchNorm1d(64)
         self.fc3 = nn.Linear(64, 32)  # Third hidden layer
