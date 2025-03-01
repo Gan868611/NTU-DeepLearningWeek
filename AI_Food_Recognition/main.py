@@ -10,49 +10,7 @@ detection_model = YOLO("/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/mod
 # Load YOLOv11 classification model (for classifying food)
 classification_model = YOLO("/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/model/yolo11m-cls.pt")  # Change to your model path if trained on Food-101
 
-image_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/test_image/pizza_5k.png"
-# image_path = "/root/yzgan/test_image/burger.png"
-
-# Run detection inference on the image
-detection_results = detection_model.predict(source=image_path, conf=0.5)
-
-# Load the original image
-image = cv2.imread(image_path)
-image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB for display
-
-# Define bounding box color
-color = (255, 0, 0)  # Blue
-
-# Get image dimensions
-img_h, img_w, _ = image.shape
-
-# Find the plate with the largest area
-largest_box = None
-max_area = 0
-
-if detection_results and len(detection_results[0].boxes) > 0:
-    for box in detection_results[0].boxes:
-        x1, y1, x2, y2 = map(int, box.xyxy[0])  # Bounding box coordinates
-        area = (x2 - x1) * (y2 - y1)  # Calculate area
-        if area > max_area:
-            max_area = area
-            largest_box = box  # Store the largest detected plate
-
-# If a plate was found, process it
-if largest_box:
-    x1, y1, x2, y2 = map(int, largest_box.xyxy[0])  # Get largest plate's coordinates
-    conf = largest_box.conf[0].item()  # Confidence score
-    cls = int(largest_box.cls[0])  # Class index
-
-    # Draw bounding box
-    cv2.rectangle(image_rgb, (x1, y1), (x2, y2), color, 2)
-
-    # Crop the detected plate region
-    cropped_plate_img = image[y1:y2, x1:x2]
-
-    # Save the cropped image temporarily
-    cropped_image_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/cropped_plate.jpg"
-    cv2.imwrite(cropped_image_path, cropped_plate_img)
+image_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/test_image/healthy_bowl.jpg"
 
 from tensorflow import keras  # ✅ Import Keras from TensorFlow
 import numpy as np
@@ -158,6 +116,12 @@ burger_metrics = [769.39, 336.48, 64.69, 58.57, 11.99]
 burger_health_score = compute_health_score(*burger_metrics)
 print(f"🍔 Burger Health Score: {burger_health_score}")
 
+# ✅ Test with Healthy Bowl (Expected High Score)
+healthy_bowl_metrics = [786, 540, 77.27, 73.19, 11.62]
+healthy_bowl_health_score = compute_health_score(*healthy_bowl_metrics)
+print(f"🥗 Healthy Bowl Health Score: {healthy_bowl_health_score}")
+
+
 
 import numpy as np
 import cv2
@@ -174,7 +138,7 @@ def preprocess_image(img_path):
 # img_path = "/root/yzgan/test_image/salad.jpg"
 # img_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/test_image/steak.jpg"
 # img_path = "/root/yzgan/test_image/pasta.png"
-preprocessed_img = preprocess_image(cropped_image_path)
+preprocessed_img = preprocess_image(image_path)
 assert preprocessed_img.shape == (1, 224, 224, 3), "Mismatch in input shape!"
 
 # get the max values to de normalize the outputs
