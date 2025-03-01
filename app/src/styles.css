@@ -1,0 +1,513 @@
+/* src/styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  background-color: #222;
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+}
+
+h1, h2 {
+  font-size: 20px;
+}
+
+.pixel-font {
+  font-size: 18px;
+  text-shadow: 2px 2px #000;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dashboard, .profile-setup, .food-recognition, .buffs-screen, .battle-screen {
+  border: 3px solid #fff;
+  padding: 20px;
+  border-radius: 10px;
+  background: #333;
+  width: 90%;
+  max-width: 400px;
+}
+
+.pixel-button {
+  font-family: 'Press Start 2P', cursive;
+  background: #ffcc00;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.pixel-button:hover {
+  background: #ffaa00;
+}
+
+/* Stats Box Container */
+.stats-box-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* Individual Stats Box */
+.stats-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px;
+  border-radius: 10px;
+  text-align: center;
+  width: 45%;
+}
+
+.stats-box h3 {
+  font-size: 16px;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.stats-box p {
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+/* Dynamic Text Colors */
+.red-text {
+  color: #ff4c4c; /* 🔴 Red for low stats */
+}
+
+.yellow-text {
+  color: #ffc107; /* 🟡 Yellow for moderate stats */
+}
+
+.green-text {
+  color: #00ff88; /* 🟢 Green for good stats */
+}
+
+/* Buff Level Section */
+.buff-level {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.buff-level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buff-level h3 {
+  font-size: 16px;
+  color: white;
+}
+
+.buff-progress {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.buff-cell {
+  width: 20px;
+  height: 10px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  margin-top: 8px;
+}
+
+.buff-cell.red {
+  background: #ff4c4c; /* 🔴 Red for low buff level */
+}
+
+.buff-cell.yellow {
+  background: #ffc107; /* 🟡 Yellow for moderate buff level */
+}
+
+.buff-cell.green {
+  background: #00ff88; /* 🟢 Green for high buff level */
+}
+
+/* Health Risk Section */
+.health-risk {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.health-risk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.health-risk h3 {
+  font-size: 16px;
+  color: white;
+}
+
+.shield-icon {
+  font-size: 20px;
+  color: #00ff88;
+}
+
+/* Health Risk Progress Bar */
+.progress-bar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.progress-fill.green {
+  background: #00ff88; /* 🟢 Green for low risk */
+}
+
+.progress-fill.yellow {
+  background: #ffc107; /* 🟡 Yellow for moderate risk */
+}
+
+.progress-fill.red {
+  background: #ff4c4c; /* 🔴 Red for high risk */
+}
+
+/* Risk Level Text */
+.risk-text {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.risk-text.green {
+  color: #00ff88;
+}
+
+.risk-text.yellow {
+  color: #ffc107;
+}
+
+.risk-text.red {
+  color: #ff4c4c;
+}
+
+.nav-buttons button {
+  background: #444;
+  color: white;
+  border: 2px solid white;
+  margin: 5px;
+  padding: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #666;
+  height: 10px;
+  border: 2px solid white;
+}
+
+.progress-fill {
+  height: 10px;
+  background: #0f0;
+}
+
+/* Ensure parent div does not affect positioning */
+.character-glow, .monster-glow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content; /* Fit to the image size */
+  margin: 0 auto; /* Center horizontally */
+}
+
+/* Character Glow (Green) */
+.character-glow img {
+  display: block;
+  filter: drop-shadow(0 0 8px #00ff88) drop-shadow(0 0 12px #00ff88);
+  animation: glow-animation-green 1.5s infinite alternate;
+}
+
+@keyframes glow-animation-green {
+  0% { filter: drop-shadow(0 0 5px #00ff88) drop-shadow(0 0 10px #00ff88); }
+  100% { filter: drop-shadow(0 0 10px #00ff88) drop-shadow(0 0 15px #00ff88); }
+}
+
+/* Monster Glow (Red) */
+.monster-glow img {
+  display: block;
+  filter: drop-shadow(0 0 8px #ff4c4c) drop-shadow(0 0 12px #ff4c4c);
+  animation: glow-animation-red 1.5s infinite alternate;
+}
+
+@keyframes glow-animation-red {
+  0% { filter: drop-shadow(0 0 5px #ff4c4c) drop-shadow(0 0 10px #ff4c4c); }
+  100% { filter: drop-shadow(0 0 10px #ff4c4c) drop-shadow(0 0 15px #ff4c4c); }
+}
+
+/* Ensure the sprite stays centered */
+.character-sprite, .monster-sprite {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.food-preview {
+  width: 100px;
+  height: 100px;
+  border: 2px solid white;
+}
+
+.food-result {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.meal-log {
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.meal-log h3 {
+  font-size: 18px;
+  color: #ffcc00;
+}
+
+.meal-log ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.meal-entry {
+  font-size: 14px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Chatbot Popup */
+.chatbot-popup {
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #ffcc00;
+  border-radius: 10px;
+  padding: 15px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+}
+
+/* Chatbot Response Box */
+.chat-response {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ffcc00;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: normal; /* Remove bold */
+  color: #fff;
+  text-align: left;
+  white-space: pre-line; /* Keep new lines */
+}
+
+/* Chat Input Field - Ensure Font Size Applies */
+.chatbot-popup input {
+  width: 90%;
+  height: 50px; /* Ensure height allows text to fit */
+  font-size: 24px; /* Increase readability (50px might be too large) */
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+
+  /* Fix font not applying */
+  font-family: inherit !important; 
+  line-height: normal !important; 
+}
+
+/* Chatbot Input Field (Now Using Textarea) */
+.chatbot-popup textarea {
+  width: 90%;
+  min-height: 50px; /* Minimum height */
+  max-height: 150px; /* Prevents it from becoming too large */
+  padding: 8px;
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: left;
+  resize: vertical; /* Allows resizing */
+  overflow-wrap: break-word; /* Ensures long words wrap */
+  white-space: pre-wrap; /* Allows line breaks */
+
+  /* Fix font not applying */
+  font-family: inherit !important; 
+  line-height: normal !important; 
+}
+
+/* Prevent overflow issues */
+.chatbot-popup {
+  max-width: 400px;
+  word-wrap: break-word;
+}
+
+/* Improved Button Styling */
+.pixel-button {
+  font-family: 'Press Start 2P', cursive;
+  background: #ffcc00;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 3px 3px black;
+  transition: transform 0.1s ease-in-out;
+}
+
+.pixel-button:hover {
+  background: #ffaa00;
+  transform: translateY(2px);
+}
+
+/* Chatbot Popup - Now Scrolls with Page */
+.chatbot-popup {
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #ffcc00;
+  border-radius: 10px;
+  padding: 15px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+  margin-top: 15px; /* Push it below the character */
+  position: relative; /* Remove fixed positioning */
+}
+
+/* Chatbot Response Box */
+.chat-response {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ffcc00;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: normal;
+  color: #fff;
+  text-align: left;
+  white-space: pre-line;
+}
+
+/* Chat Input Field */
+.chatbot-popup input {
+  width: 90%;
+  padding: 8px;
+  font-size: 12px;
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Chatbot Send Button */
+.chatbot-popup button {
+  font-family: 'Press Start 2P', cursive;
+  background: #00ff88;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  box-shadow: 3px 3px black;
+  transition: transform 0.1s ease-in-out;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.chatbot-popup button:hover {
+  background: #00cc66;
+  transform: translateY(2px);
+}
+
+/* Disabled Button (When Loading) */
+.chatbot-popup button:disabled {
+  background: #666;
+  color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+/* Health Risk Section */
+.health-risk {
+    background: rgba(255, 255, 255, 0.1); /* Transparent effect */
+    padding: 15px;
+    border-radius: 10px;
+    text-align: left;
+    margin-top: 20px;
+  }
+  
+  .health-risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .health-risk h3 {
+    font-size: 16px;
+    color: white;
+  }
+  
+  .shield-icon {
+    font-size: 20px;
+    color: #00ff88;
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    height: 8px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .progress-fill.health {
+    background: #00ff88; /* Green for low risk */
+  }
+  
+  /* Risk Level Text */
+  .risk-text {
+    font-size: 14px;
+    color: #00ff88;
+    margin-top: 5px;
+  }
+
+@import "./components/BottomNavBar.css";

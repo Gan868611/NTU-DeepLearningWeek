@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Monster Battle</title>
+
+    <!-- Link external CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="game-container">
+        <div class="battle-area">
+            <div class="monster-container" onmouseover="showTooltip(event, 'monster')" onmousemove="moveTooltip(event, 'monster')" onmouseout="hideTooltip('monster')">
+                <img src="{{ url_for('static', filename='images/monster.png') }}" id="monster-img" alt="Monster">
+                <div class="status-box">
+                    Monster HP: <span id="monster-hp-text">100/100</span>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="monster-hp"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="tooltip" id="monster-tooltip">Loading...</div>
+            <div class="player-container" onmouseover="showTooltip(event, 'player')" onmousemove="moveTooltip(event, 'player')" onmouseout="hideTooltip('player')">
+                <img src="{{ url_for('static', filename='images/player.png') }}" id="player-img" alt="Player">
+                <div class="status-box">
+                    Player HP: <span id="player-hp-text">100/100</span>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="player-hp"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="tooltip" id="player-tooltip">Loading...</div>
+        </div>
+
+        <div class="battle-log" id="battle-log">Battle begins!</div>
+
+        <div class="menu-buttons" id="main-menu">
+            <button onclick="showAttackMenu()">Fight</button>
+            <button onclick="useItem()">Items</button>
+            <button onclick="runAway()">Run</button>
+        </div>
+
+        <div class="attack-menu" id="attack-menu">
+            <button onclick="attack('Salad Slam')">🥗 Salad Slam</button>
+            <button onclick="attack('Cardio Crush')">🚴 Cardio Crush</button>
+            <button onclick="attack('Apple A Day')">🍎 Apple A Day</button>
+            <button onclick="attack('Back to Menu')">Back</button>
+        </div>
+    </div>
+
+    <!-- Add these audio elements within the <body> tag -->
+    <audio id="hit-sound" src="/static/sounds/hit.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="/static/sounds/win.mp3" preload="auto"></audio>
+    <audio id="lose-sound" src="/static/sounds/lose.mp3" preload="auto"></audio>
+
+    <!-- Link external JavaScript file -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
