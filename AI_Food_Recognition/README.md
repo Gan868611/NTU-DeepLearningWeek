@@ -1,1 +1,1 @@
-1. run plate_detection.py to generate cropped_plate.jpg
+1. Run main.py and change line 13for different image
