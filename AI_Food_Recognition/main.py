@@ -10,7 +10,7 @@ detection_model = YOLO("/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/mod
 # Load YOLOv11 classification model (for classifying food)
 classification_model = YOLO("/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/model/yolo11m-cls.pt")  # Change to your model path if trained on Food-101
 
-image_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/test_image/healthy_bowl.jpg"
+image_path = "/root/yzgan/NTU-DeepLearningWeek/AI_Food_Recognition/test_image/salad.jpg"
 
 from tensorflow import keras  # ✅ Import Keras from TensorFlow
 import numpy as np
