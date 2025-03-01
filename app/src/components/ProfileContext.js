@@ -11,7 +11,7 @@ export const ProfileProvider = ({ children }) => {
     age_category: "", // Auto-determined
     cancer_history: "No Cancer",
     diabetes_status: "No Diabetes",
-    exercise: 6, // 🔹 Store exercise count (default 0)
+    exercise: 5, // 🔹 Store exercise count (default 0)
     sleep_hours: 8, // 🔹 Store sleep hours (default 0)
     depression: "No",
     arthritis: "No",

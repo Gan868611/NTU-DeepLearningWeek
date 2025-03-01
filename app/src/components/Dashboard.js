@@ -1,5 +1,5 @@
 // src/components/Dashboard.js
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ProfileContext } from "./ProfileContext";
 import Character from "./Character";
 import Monster from "./Monster";
@@ -27,16 +27,63 @@ const Dashboard = ({ healthRisk, countdown }) => {
   const buffLevel = Math.round(weightedBuff * 15); // Scale to 15
   const buffLevelClamped = Math.max(0, Math.min(buffLevel, 15)); // Ensure it's between 0-15
 
+  // ✅ Fix: Define missing states
+  const [message, setMessage] = useState(""); // Chat input message
+  const [loading, setLoading] = useState(false); // Loading state for chatbot
+  const [chatResponse, setChatResponse] = useState(""); // Chatbot response
+  const [chatVisible, setChatVisible] = useState(false); // Toggle chat visibility
+
   // Function to determine text color for Sleep & Exercise
   const getStatColor = (value, type) => {
     if (type === "sleep") return value < 5 ? "red-text" : value <= 7 ? "yellow-text" : "green-text";
     if (type === "exercise") return value < 2 ? "red-text" : value <= 5 ? "yellow-text" : "green-text";
   };
 
+  // ✅ Send Chat Message with Health Info
+  const sendMessage = async () => {
+    if (!message.trim()) return;
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5001/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, healthInfo: profile }),
+      });
+
+      const data = await response.json();
+      setChatResponse(data.reply);
+    } catch (error) {
+      setChatResponse("Error communicating with chatbot.");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="dashboard">
       <h1>🏥 Health Tracker</h1>
-      <Character healthRisk={profile.risk_score} />
+
+      {/* Character Clickable to Open Chatbot */}
+      <div className="character-container" onClick={() => setChatVisible(!chatVisible)}>
+        <Character healthRisk={profile.risk_score} />
+      </div>
+
+      {/* Chatbot Popup (Now Using Textarea for Wrapping) */}
+      {chatVisible && (
+        <div className="chatbot-popup">
+          <h3>💬 Health Chatbot</h3>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask a health question..."
+          />
+          <button onClick={sendMessage} disabled={loading}>
+            {loading ? "Thinking..." : "Send"}
+          </button>
+          <p className="chat-response">{chatResponse}</p>
+        </div>
+      )}
 
       {/* Sleep & Exercise Stats Section */}
       <div className="stats-box-container">

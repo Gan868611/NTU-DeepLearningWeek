@@ -297,6 +297,166 @@ h1, h2 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Chatbot Popup */
+.chatbot-popup {
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #ffcc00;
+  border-radius: 10px;
+  padding: 15px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+}
+
+/* Chatbot Response Box */
+.chat-response {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ffcc00;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: normal; /* Remove bold */
+  color: #fff;
+  text-align: left;
+  white-space: pre-line; /* Keep new lines */
+}
+
+/* Chat Input Field - Ensure Font Size Applies */
+.chatbot-popup input {
+  width: 90%;
+  height: 50px; /* Ensure height allows text to fit */
+  font-size: 24px; /* Increase readability (50px might be too large) */
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+
+  /* Fix font not applying */
+  font-family: inherit !important; 
+  line-height: normal !important; 
+}
+
+/* Chatbot Input Field (Now Using Textarea) */
+.chatbot-popup textarea {
+  width: 90%;
+  min-height: 50px; /* Minimum height */
+  max-height: 150px; /* Prevents it from becoming too large */
+  padding: 8px;
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: left;
+  resize: vertical; /* Allows resizing */
+  overflow-wrap: break-word; /* Ensures long words wrap */
+  white-space: pre-wrap; /* Allows line breaks */
+
+  /* Fix font not applying */
+  font-family: inherit !important; 
+  line-height: normal !important; 
+}
+
+/* Prevent overflow issues */
+.chatbot-popup {
+  max-width: 400px;
+  word-wrap: break-word;
+}
+
+/* Improved Button Styling */
+.pixel-button {
+  font-family: 'Press Start 2P', cursive;
+  background: #ffcc00;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 3px 3px black;
+  transition: transform 0.1s ease-in-out;
+}
+
+.pixel-button:hover {
+  background: #ffaa00;
+  transform: translateY(2px);
+}
+
+/* Chatbot Popup - Now Scrolls with Page */
+.chatbot-popup {
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #ffcc00;
+  border-radius: 10px;
+  padding: 15px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+  margin-top: 15px; /* Push it below the character */
+  position: relative; /* Remove fixed positioning */
+}
+
+/* Chatbot Response Box */
+.chat-response {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ffcc00;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: normal;
+  color: #fff;
+  text-align: left;
+  white-space: pre-line;
+}
+
+/* Chat Input Field */
+.chatbot-popup input {
+  width: 90%;
+  padding: 8px;
+  font-size: 12px;
+  border: 2px solid #ffcc00;
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Chatbot Send Button */
+.chatbot-popup button {
+  font-family: 'Press Start 2P', cursive;
+  background: #00ff88;
+  padding: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+  box-shadow: 3px 3px black;
+  transition: transform 0.1s ease-in-out;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.chatbot-popup button:hover {
+  background: #00cc66;
+  transform: translateY(2px);
+}
+
+/* Disabled Button (When Loading) */
+.chatbot-popup button:disabled {
+  background: #666;
+  color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 
 /* Health Risk Section */
 .health-risk {

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ import numpy as np
 import cv2
 import base64
 import os
+import requests
 import pandas as pd
 from ultralytics import YOLO
 from tensorflow import keras
@@ -39,6 +40,36 @@ def run_flask():
 
 # ✅ Start Flask in a New Thread
 threading.Thread(target=run_flask, daemon=True).start()
+
+# Define Flask Chatbot URL (running in the background)
+FLASK_CHATBOT_URL = "http://127.0.0.1:5001"
+
+def start_flask():
+    """Starts the Flask chatbot (app.py) in a background process."""
+    try:
+        subprocess.run(["python", "chatbot_app.py"])  # Run Flask backend
+        # subprocess.Popen(["python", "chatbot_app.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(3)  # Give Flask time to start
+    except Exception as e:
+        print(f"Error starting Flask: {e}")
+
+# Start Flask in a background thread when FastAPI runs
+threading.Thread(target=start_flask, daemon=True).start()
+
+@app.post("/sync_profile")
+async def sync_profile(profile: dict):
+    """Send user profile data to Flask chatbot for reference."""
+    try:
+        print("🟢 Sending profile data to Flask:", profile)  # Log request
+
+        response = requests.post(f"{FLASK_CHATBOT_URL}/set_health_profile", json=profile)
+        response_data = response.json()
+
+        print("✅ Response from Flask:", response_data)  # Log response
+        return response_data
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error syncing profile: {e}")
+        raise HTTPException(status_code=500, detail=f"Error syncing profile: {str(e)}")
 
 # 🖥️ Disable GPU for inference
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"

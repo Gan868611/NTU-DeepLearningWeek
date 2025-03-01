@@ -42,7 +42,7 @@ function attack(ability) {
 
             if (data.monster.hp <= 0) {
                 setTimeout(() => {
-                    document.getElementById("battle-log").innerText = "You won! The monster is defeated.";
+                    document.getElementById("battle-log").innerText = "🎉 Victory! Your healthy choices made you stronger. Keep it up! 💪";
                     playWinSound();
                 }, 1000); // Add a 1-second delay to allow the attack animation to complete
                 return;
@@ -58,13 +58,8 @@ function attack(ability) {
                             updateGameState(data);
 
                             if (data.player.hp <= 0) {
-                                document.getElementById("battle-log").innerText = "You lost! The monster defeated you.";
-                                return;
-                            }
-
-                            if (data.player.hp <= 0) {
                                 setTimeout(() => {
-                                    document.getElementById("battle-log").innerText = "You lost! The monster defeated you.";
+                                    document.getElementById("battle-log").innerText = "💔 Defeated! Don't give up—stay healthy and try again! Ask the AI chatbot for tips.";
                                     playLoseSound();
                                 }, 1000); // Add a 1-second delay to allow the attack animation to complete
                                 return;
