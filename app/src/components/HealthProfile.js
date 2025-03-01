@@ -3,7 +3,7 @@ import { ProfileContext } from "./ProfileContext";
 import "./HealthProfile.css";
 
 const HealthProfile = () => {
-  const { profile, updateProfile, clearProfile } = useContext(ProfileContext);
+  const { profile, updateProfile, clearProfile, updateRiskLevel } = useContext(ProfileContext);
   const [riskScore, setRiskScore] = useState(null);
   const [riskCategory, setRiskCategory] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -23,12 +23,13 @@ const HealthProfile = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
+      updateRiskLevel(data.risk_score); // 🔹 Save risk level globally
       setRiskScore(data.risk_score);
       setRiskCategory(data.risk_category);
     } catch (err) {
@@ -79,14 +80,13 @@ const HealthProfile = () => {
           <option>No Exercise</option>
           <option>Light</option>
           <option>Moderate</option>
-          <option>Active</option>
+          <option>Yes</option>
         </select>
 
         <label>Smoking History</label>
         <select name="smoking_history" value={profile.smoking_history} onChange={handleChange}>
-          <option>Never smoked</option>
-          <option>Former smoker</option>
-          <option>Current smoker</option>
+          <option>Yes</option>
+          <option>No</option>
         </select>
 
         <label>Alcohol Consumption (Days per Month)</label>
@@ -96,16 +96,22 @@ const HealthProfile = () => {
       {/* Medical History Section */}
       <div className="section">
         <h3>🏥 Medical History</h3>
-        <label>Skin Cancer</label>
-        <select name="skin_cancer" value={profile.skin_cancer} onChange={handleChange}>
-          <option>No</option>
-          <option>Yes</option>
+
+        {/* Combined Cancer Field */}
+        <label>Cancer History</label>
+        <select name="cancer_history" value={profile.cancer_history} onChange={handleChange}>
+          <option>No Cancer</option>
+          <option>Skin Cancer</option>
+          <option>Other Cancer</option>
         </select>
 
-        <label>Other Cancer</label>
-        <select name="other_cancer" value={profile.other_cancer} onChange={handleChange}>
-          <option>No</option>
-          <option>Yes</option>
+        {/* Combined Diabetes Field */}
+        <label>Diabetes Status</label>
+        <select name="diabetes_status" value={profile.diabetes_status} onChange={handleChange}>
+          <option>No Diabetes</option>
+          <option>Pre-Diabetes</option>
+          <option>Diabetes</option>
+          <option>Pregnancy-Related Diabetes</option>
         </select>
 
         <label>Depression</label>
@@ -116,24 +122,6 @@ const HealthProfile = () => {
 
         <label>Arthritis</label>
         <select name="arthritis" value={profile.arthritis} onChange={handleChange}>
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-
-        <label>Pre-Diabetes</label>
-        <select name="pre_diabetes" value={profile.pre_diabetes} onChange={handleChange}>
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-
-        <label>Diabetes</label>
-        <select name="diabetes" value={profile.diabetes} onChange={handleChange}>
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-
-        <label>Pregnancy-Related Diabetes</label>
-        <select name="pregnancy_diabetes" value={profile.pregnancy_diabetes} onChange={handleChange}>
           <option>No</option>
           <option>Yes</option>
         </select>

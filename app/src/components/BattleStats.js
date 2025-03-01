@@ -30,7 +30,7 @@ const BattleStats = () => {
       <div className="streak-section">
         <h3>🔥 Current Streak</h3>
         <div className="streak-bar">
-          {Array(6)
+          {Array(13)
             .fill(0)
             .map((_, index) => (
               <div key={index} className={`streak-dot ${index < streak ? "active" : ""}`}></div>

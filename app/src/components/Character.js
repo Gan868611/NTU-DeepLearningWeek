@@ -5,7 +5,11 @@ import sadSprite from "../assets/sprites/character-sad.png";
 
 const Character = ({ healthRisk }) => {
   const sprite = healthRisk === "High" ? sadSprite : happySprite;
-  return <img src={sprite} alt="Character" className="character-sprite" />;
+  return (
+    <div className="character-glow">
+      <img src={sprite} alt="Character" className="character-sprite" />
+    </div>
+  );
 };
 
 export default Character;

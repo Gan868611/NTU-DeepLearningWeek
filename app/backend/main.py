@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Activation, Dense, BatchNormalization, Globa
 from fastapi.middleware.cors import CORSMiddleware
 import torch
 from sklearn.preprocessing import StandardScaler
+import joblib
 
 app = FastAPI()
 
@@ -193,11 +194,11 @@ age_mapping = {"18-24": 1, "25-29": 2, "30-34": 3, "35-39": 4, "40-44": 5,
 
 # Standardize BMI & Alcohol Consumption
 scaler = StandardScaler()
-scaler.fit(np.array([[25.0, 10], [30.0, 20]]))  # Dummy values, replace with real scaler
+scaler = joblib.load("model/scaler.pkl")
 
 # 🚀 Define API Input Model
 class HealthProfile(BaseModel):
-    age: int
+    age_category: str
     sex: str
     bmi: float
     exercise: str
@@ -224,7 +225,7 @@ def calculate_health_risk(profile: HealthProfile):
     pre_diabetes = 1 if profile.pre_diabetes == "Yes" else 0
     diabetes = 1 if profile.diabetes == "Yes" else 0
     pregnancy_diabetes = 1 if profile.pregnancy_diabetes == "Yes" else 0
-    age_category = age_mapping.get(profile.age, 1)  # Default to lowest category if not found
+    age_category = age_mapping.get(profile.age_category, 1)  # Default to lowest category if not found
 
     # Standardize BMI & Alcohol Consumption
     bmi, alcohol = scaler.transform([[profile.bmi, profile.alcohol_days]])[0]
@@ -242,9 +243,9 @@ def calculate_health_risk(profile: HealthProfile):
 
     # Convert risk score to category
     risk_category = "Low"
-    if risk_score > 0.75:
+    if risk_score > 0.2:
         risk_category = "High"
-    elif risk_score > 0.5:
+    elif risk_score > 0.1:
         risk_category = "Moderate"
 
     return {

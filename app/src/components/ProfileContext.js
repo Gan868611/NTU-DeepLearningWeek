@@ -7,19 +7,20 @@ export const ProfileProvider = ({ children }) => {
     age: "",
     weight: "",
     height: "",
-    bmi: "", // Will be auto-calculated
-    age_category: "", // Will be auto-calculated
+    bmi: "", // Auto-calculated
+    age_category: "", // Auto-determined
     exercise: "No Exercise",
-    skin_cancer: "No",
-    other_cancer: "No",
+    cancer_history: "No Cancer",
+    diabetes_status: "No Diabetes",
+    exercise: 8, // 🔹 Store exercise hours (default 0)
+    sleep_hours: 8, // 🔹 Store sleep hours (default 0)
     depression: "No",
     arthritis: "No",
     sex: "Male",
     smoking_history: "Never smoked",
     alcohol_days: "", // User enters days per month
-    pre_diabetes: "No",
-    diabetes: "No",
-    pregnancy_diabetes: "No",
+    risk_score: null, // New state for Health Risk Score
+    mealLog: [], // 🔹 New: Meal log storage
   };
 
   const [profile, setProfile] = useState(defaultProfile);
@@ -54,9 +55,42 @@ export const ProfileProvider = ({ children }) => {
     else if (age >= 75 && age <= 79) age_category = "75-79";
     else if (age >= 80) age_category = "80+";
 
-    const updatedProfile = { ...newProfile, bmi, age_category };
+    let skin_cancer = "No", other_cancer = "No";
+    if (newProfile.cancer_history === "Skin Cancer") skin_cancer = "Yes";
+    if (newProfile.cancer_history === "Other Cancer") other_cancer = "Yes";
+
+    let pre_diabetes = "No", diabetes = "No", pregnancy_diabetes = "No";
+    if (newProfile.diabetes_status === "Pre-Diabetes") pre_diabetes = "Yes";
+    if (newProfile.diabetes_status === "Diabetes") diabetes = "Yes";
+    if (newProfile.diabetes_status === "Pregnancy-Related Diabetes") pregnancy_diabetes = "Yes";
+
+    const updatedProfile = { ...newProfile, bmi, age_category, skin_cancer, 
+      other_cancer, pre_diabetes, diabetes, pregnancy_diabetes  };
     setProfile(updatedProfile);
     localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
+  };
+
+  const updateRiskLevel = (risk_score) => {
+    const updatedProfile = { ...profile, risk_score };
+    setProfile(updatedProfile);
+    localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
+  };
+
+  const addMealToLog = (meal) => {
+    const updatedMealLog = [meal, ...(profile.mealLog || [])]; // ✅ Ensure mealLog exists
+    setProfile((prev) => ({ ...prev, mealLog: updatedMealLog }));
+  };
+
+  const updateSleepHours = (hours) => {
+    setProfile((prev) => ({ ...prev, sleep_hours: hours }));
+  };
+
+  const updateExerciseHours = (hours) => {
+    setProfile((prev) => ({ ...prev, exercise: hours }));
+  };
+  
+  const clearMealLog = () => {
+    setProfile((prev) => ({ ...prev, mealLog: [] }));
   };
 
   const clearProfile = () => {
@@ -65,7 +99,8 @@ export const ProfileProvider = ({ children }) => {
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile, clearProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile, clearProfile, updateRiskLevel, 
+    addMealToLog, clearMealLog, updateSleepHours, updateExerciseHours }}>
       {children}
     </ProfileContext.Provider>
   );

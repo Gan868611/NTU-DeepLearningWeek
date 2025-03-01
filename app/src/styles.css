@@ -47,18 +47,168 @@ h1, h2 {
   background: #ffaa00;
 }
 
+/* Stats Box Container */
+.stats-box-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* Individual Stats Box */
+.stats-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px;
+  border-radius: 10px;
+  text-align: center;
+  width: 45%;
+}
+
+.stats-box h3 {
+  font-size: 16px;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.stats-box p {
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+/* Dynamic Text Colors */
+.red-text {
+  color: #ff4c4c; /* 🔴 Red for low stats */
+}
+
+.yellow-text {
+  color: #ffc107; /* 🟡 Yellow for moderate stats */
+}
+
+.green-text {
+  color: #00ff88; /* 🟢 Green for good stats */
+}
+
+/* Buff Level Section */
+.buff-level {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.buff-level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buff-level h3 {
+  font-size: 16px;
+  color: white;
+}
+
+.buff-progress {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.buff-cell {
+  width: 20px;
+  height: 10px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  margin-top: 8px;
+}
+
+.buff-cell.red {
+  background: #ff4c4c; /* 🔴 Red for low buff level */
+}
+
+.buff-cell.yellow {
+  background: #ffc107; /* 🟡 Yellow for moderate buff level */
+}
+
+.buff-cell.green {
+  background: #00ff88; /* 🟢 Green for high buff level */
+}
+
+/* Health Risk Section */
+.health-risk {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.health-risk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.health-risk h3 {
+  font-size: 16px;
+  color: white;
+}
+
+.shield-icon {
+  font-size: 20px;
+  color: #00ff88;
+}
+
+/* Health Risk Progress Bar */
+.progress-bar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.progress-fill.green {
+  background: #00ff88; /* 🟢 Green for low risk */
+}
+
+.progress-fill.yellow {
+  background: #ffc107; /* 🟡 Yellow for moderate risk */
+}
+
+.progress-fill.red {
+  background: #ff4c4c; /* 🔴 Red for high risk */
+}
+
+/* Risk Level Text */
+.risk-text {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.risk-text.green {
+  color: #00ff88;
+}
+
+.risk-text.yellow {
+  color: #ffc107;
+}
+
+.risk-text.red {
+  color: #ff4c4c;
+}
+
 .nav-buttons button {
   background: #444;
   color: white;
   border: 2px solid white;
   margin: 5px;
   padding: 10px;
-}
-
-.buff-icon {
-  width: 30px;
-  height: 30px;
-  margin: 5px;
 }
 
 .progress-bar {
@@ -73,9 +223,44 @@ h1, h2 {
   background: #0f0;
 }
 
-.character-sprite {
+/* Ensure parent div does not affect positioning */
+.character-glow, .monster-glow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content; /* Fit to the image size */
+  margin: 0 auto; /* Center horizontally */
+}
+
+/* Character Glow (Green) */
+.character-glow img {
+  display: block;
+  filter: drop-shadow(0 0 8px #00ff88) drop-shadow(0 0 12px #00ff88);
+  animation: glow-animation-green 1.5s infinite alternate;
+}
+
+@keyframes glow-animation-green {
+  0% { filter: drop-shadow(0 0 5px #00ff88) drop-shadow(0 0 10px #00ff88); }
+  100% { filter: drop-shadow(0 0 10px #00ff88) drop-shadow(0 0 15px #00ff88); }
+}
+
+/* Monster Glow (Red) */
+.monster-glow img {
+  display: block;
+  filter: drop-shadow(0 0 8px #ff4c4c) drop-shadow(0 0 12px #ff4c4c);
+  animation: glow-animation-red 1.5s infinite alternate;
+}
+
+@keyframes glow-animation-red {
+  0% { filter: drop-shadow(0 0 5px #ff4c4c) drop-shadow(0 0 10px #ff4c4c); }
+  100% { filter: drop-shadow(0 0 10px #ff4c4c) drop-shadow(0 0 15px #ff4c4c); }
+}
+
+/* Ensure the sprite stays centered */
+.character-sprite, .monster-sprite {
   width: 100px;
   height: 100px;
+  object-fit: contain;
 }
 
 .food-preview {
@@ -88,6 +273,30 @@ h1, h2 {
   font-size: 14px;
   margin-top: 10px;
 }
+
+.meal-log {
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.meal-log h3 {
+  font-size: 18px;
+  color: #ffcc00;
+}
+
+.meal-log ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.meal-entry {
+  font-size: 14px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 
 /* Health Risk Section */
 .health-risk {
