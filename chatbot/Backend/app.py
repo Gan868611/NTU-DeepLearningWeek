@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-openai.api_key = "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"
+openai.api_key = "key"
 
 # Use filesystem for session storage
 app.config["SESSION_TYPE"] = "filesystem"

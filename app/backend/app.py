@@ -11,7 +11,7 @@ CORS(app)  # Allow all origins
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # If you want to limit it to React only
 
 # Set up your OpenAI API key (ensure you replace with your actual key)
-openai.api_key = "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"
+openai.api_key = "key"
 
 print(f"OpenAI API Key: {openai.api_key}")
 

@@ -7,7 +7,7 @@ from flask_session import Session
 
 app = Flask(__name__)
 
-openai.api_key = "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"
+openai.api_key = "key"
 
 # ✅ Ensure Flask Session Uses File System
 app.config["SESSION_TYPE"] = "filesystem"  # Store sessions in a file
