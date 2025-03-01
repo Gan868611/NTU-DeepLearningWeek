@@ -1,5 +1,10 @@
 from fastapi import FastAPI, File, UploadFile
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+import threading
+import subprocess
+import time
 import numpy as np
 import cv2
 import base64
@@ -25,6 +30,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ Function to Run Flask (`app.py`) in a Separate Thread
+def run_flask():
+    """Runs the Flask server in a separate thread."""
+    time.sleep(2)  # Give FastAPI time to start
+    subprocess.run(["python", "app.py"])  # Run Flask backend
+
+# ✅ Start Flask in a New Thread
+threading.Thread(target=run_flask, daemon=True).start()
 
 # 🖥️ Disable GPU for inference
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
