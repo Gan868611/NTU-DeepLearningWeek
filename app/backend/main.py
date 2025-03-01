@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 import numpy as np
 import cv2
-import io
+import base64
 import os
 import pandas as pd
 from ultralytics import YOLO
@@ -128,12 +128,12 @@ async def food_recognition(file: UploadFile = File(...)):
         x1, y1, x2, y2 = map(int, largest_box.xyxy[0])
         cropped_img = image[y1:y2, x1:x2]
 
-    # 🏷️ Step 2: Classify Food Type
-    food_classification = classification_model.predict(source=cropped_img)
-    food_label = food_classification[0].names[int(food_classification[0].boxes[0].cls[0])]
+    # Convert cropped image to Base64
+    _, buffer = cv2.imencode(".jpg", cropped_img)
+    cropped_img_base64 = base64.b64encode(buffer).decode("utf-8")
 
-    # 🔢 Step 3: Predict Nutritional Data
-    preprocessed_img = preprocess_image(cropped_img)
+    # 🔢 Step 2: Predict Nutritional Data
+    preprocessed_img = preprocess_image(image)
     outputs = nutrition_model.predict(preprocessed_img)
 
     # Convert Outputs to Human-Readable Values
@@ -144,13 +144,13 @@ async def food_recognition(file: UploadFile = File(...)):
     health_score = compute_health_score(calories, mass, fat, carb, protein)
 
     return {
-        "food": food_label,
         "calories": round(calories, 2),
         "mass": round(mass, 2),
         "fat": round(fat, 2),
         "carb": round(carb, 2),
         "protein": round(protein, 2),
         "health_score": health_score,
+        "cropped_image": f"data:image/jpeg;base64,{cropped_img_base64}"
     }
 
 # 🚀 Health Risk Endpoint (No Change)
