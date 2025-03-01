@@ -11,6 +11,8 @@ from keras.layers import Input
 from keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.layers import Activation, Dense, BatchNormalization, GlobalAveragePooling2D
 from fastapi.middleware.cors import CORSMiddleware
+import torch
+from sklearn.preprocessing import StandardScaler
 
 app = FastAPI()
 
@@ -133,7 +135,7 @@ async def food_recognition(file: UploadFile = File(...)):
     cropped_img_base64 = base64.b64encode(buffer).decode("utf-8")
 
     # 🔢 Step 2: Predict Nutritional Data
-    preprocessed_img = preprocess_image(image)
+    preprocessed_img = preprocess_image(cropped_img)
     outputs = nutrition_model.predict(preprocessed_img)
 
     # Convert Outputs to Human-Readable Values
@@ -153,23 +155,102 @@ async def food_recognition(file: UploadFile = File(...)):
         "cropped_image": f"data:image/jpeg;base64,{cropped_img_base64}"
     }
 
-# 🚀 Health Risk Endpoint (No Change)
+# 🚀 Load the Trained PyTorch Model
+class HeartDiseaseNN(torch.nn.Module):
+    def __init__(self, input_dim):
+        super(HeartDiseaseNN, self).__init__()
+        self.fc1 = torch.nn.Linear(input_dim, 128)
+        self.bn1 = torch.nn.BatchNorm1d(128)
+        self.fc2 = torch.nn.Linear(128, 64)
+        self.bn2 = torch.nn.BatchNorm1d(64)
+        self.fc3 = torch.nn.Linear(64, 32)
+        self.bn3 = torch.nn.BatchNorm1d(32)
+        self.fc4 = torch.nn.Linear(32, 1)
+        self.dropout = torch.nn.Dropout(0.3)
+        self.relu = torch.nn.ReLU()
+        self.sigmoid = torch.nn.Sigmoid()
+
+    def forward(self, x):
+        x = self.relu(self.bn1(self.fc1(x)))
+        x = self.dropout(x)
+        x = self.relu(self.bn2(self.fc2(x)))
+        x = self.dropout(x)
+        x = self.relu(self.bn3(self.fc3(x)))
+        x = self.dropout(x)
+        x = self.sigmoid(self.fc4(x))
+        return x
+
+# Load model
+input_dim = 13  # Make sure this matches your training input dimension
+model = HeartDiseaseNN(input_dim)
+model.load_state_dict(torch.load("model/heart_disease_model.pth", map_location=torch.device("cpu")))
+model.eval()
+
+# 🚀 Load Preprocessing Information
+age_mapping = {"18-24": 1, "25-29": 2, "30-34": 3, "35-39": 4, "40-44": 5,
+               "45-49": 6, "50-54": 7, "55-59": 8, "60-64": 9, "65-69": 10,
+               "70-74": 11, "75-79": 12, "80+": 13}
+
+# Standardize BMI & Alcohol Consumption
+scaler = StandardScaler()
+scaler.fit(np.array([[25.0, 10], [30.0, 20]]))  # Dummy values, replace with real scaler
+
+# 🚀 Define API Input Model
 class HealthProfile(BaseModel):
     age: int
-    gender: str
-    smoking: str
+    sex: str
+    bmi: float
     exercise: str
-    alcohol: str
-    family_history: str
+    skin_cancer: str
+    other_cancer: str
+    depression: str
+    arthritis: str
+    smoking_history: str
+    alcohol_days: int
+    pre_diabetes: str
+    diabetes: str
+    pregnancy_diabetes: str
 
 @app.post("/health-risk")
 def calculate_health_risk(profile: HealthProfile):
-    risk_score = 100 - (profile.age / 2)
-    if profile.smoking == "Current smoker": risk_score += 20
-    if profile.exercise == "Sedentary": risk_score += 15
-    if profile.alcohol == "Frequent": risk_score += 10
-    risk_level = "Low" if risk_score <= 50 else "Moderate" if risk_score <= 75 else "High"
-    return {"risk_score": risk_score, "risk_level": risk_level}
+    # Convert categorical values
+    sex = 1 if profile.sex == "Male" else 0
+    exercise = 1 if profile.exercise == "Yes" else 0
+    skin_cancer = 1 if profile.skin_cancer == "Yes" else 0
+    other_cancer = 1 if profile.other_cancer == "Yes" else 0
+    depression = 1 if profile.depression == "Yes" else 0
+    arthritis = 1 if profile.arthritis == "Yes" else 0
+    smoking_history = 1 if profile.smoking_history == "Yes" else 0
+    pre_diabetes = 1 if profile.pre_diabetes == "Yes" else 0
+    diabetes = 1 if profile.diabetes == "Yes" else 0
+    pregnancy_diabetes = 1 if profile.pregnancy_diabetes == "Yes" else 0
+    age_category = age_mapping.get(profile.age, 1)  # Default to lowest category if not found
+
+    # Standardize BMI & Alcohol Consumption
+    bmi, alcohol = scaler.transform([[profile.bmi, profile.alcohol_days]])[0]
+
+    # Prepare input tensor
+    input_data = np.array([[exercise, skin_cancer, other_cancer, depression, arthritis, 
+                             sex, age_category, bmi, smoking_history, alcohol, 
+                             pre_diabetes, diabetes, pregnancy_diabetes]])
+
+    input_tensor = torch.tensor(input_data, dtype=torch.float32)
+
+    # Get prediction
+    with torch.no_grad():
+        risk_score = model(input_tensor).item()
+
+    # Convert risk score to category
+    risk_category = "Low"
+    if risk_score > 0.75:
+        risk_category = "High"
+    elif risk_score > 0.5:
+        risk_category = "Moderate"
+
+    return {
+        "risk_score": round(risk_score, 3),
+        "risk_category": risk_category
+    }
 
 @app.get("/")
 def home():

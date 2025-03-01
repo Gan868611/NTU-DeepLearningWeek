@@ -28,18 +28,21 @@
   
   label {
     display: block;
-    font-size: 14px;
-    margin: 5px 0;
+    font-size: 15px;
+    margin: 10px 0px 10px;
     color: #ddd;
   }
   
   input, select {
-    width: 100%;
-    padding: 8px;
+    width: 100%; /* Ensures both take the full container width */
+    max-width: 100%; /* Prevents select from overflowing */
+    padding: 10px; /* Ensure equal padding */
+    font-size: 15px;
     border-radius: 5px;
     border: none;
     background: rgba(255, 255, 255, 0.2);
     color: white;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
   }
   
   .radio-group {

@@ -36,7 +36,7 @@ const BattleStats = () => {
               <div key={index} className={`streak-dot ${index < streak ? "active" : ""}`}></div>
             ))}
         </div>
-        <p>{streak} Day Streak</p>
+        <p>{streak} Win Streak</p>
       </div>
     </div>
   );

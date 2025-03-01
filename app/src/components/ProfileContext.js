@@ -3,16 +3,27 @@ import React, { createContext, useState, useEffect } from "react";
 export const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-  const [profile, setProfile] = useState({
-    age: 0,
-    gender: "Male",
-    family_history: "No known history",
-    smoking: "Never smoked",
-    exercise: "Moderate",
-    alcohol: "Occasional"
-  });
+  const defaultProfile = {
+    age: "",
+    weight: "",
+    height: "",
+    bmi: "", // Will be auto-calculated
+    age_category: "", // Will be auto-calculated
+    exercise: "No Exercise",
+    skin_cancer: "No",
+    other_cancer: "No",
+    depression: "No",
+    arthritis: "No",
+    sex: "Male",
+    smoking_history: "Never smoked",
+    alcohol_days: "", // User enters days per month
+    pre_diabetes: "No",
+    diabetes: "No",
+    pregnancy_diabetes: "No",
+  };
 
-  // ✅ Load from localStorage when the app starts
+  const [profile, setProfile] = useState(defaultProfile);
+
   useEffect(() => {
     const savedProfile = JSON.parse(localStorage.getItem("userProfile"));
     if (savedProfile) {
@@ -20,15 +31,41 @@ export const ProfileProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ Save profile when updated
   const updateProfile = (newProfile) => {
-    setProfile(newProfile);
-    localStorage.setItem("userProfile", JSON.stringify(newProfile));
+    // Calculate BMI
+    const weight = parseFloat(newProfile.weight);
+    const height = parseFloat(newProfile.height) / 100; // Convert cm to meters
+    const bmi = weight && height ? (weight / (height * height)).toFixed(1) : "";
+
+    // Determine Age Category
+    let age_category = "";
+    const age = parseInt(newProfile.age);
+    if (age >= 18 && age <= 24) age_category = "18-24";
+    else if (age >= 25 && age <= 29) age_category = "25-29";
+    else if (age >= 30 && age <= 34) age_category = "30-34";
+    else if (age >= 35 && age <= 39) age_category = "35-39";
+    else if (age >= 40 && age <= 44) age_category = "40-44";
+    else if (age >= 45 && age <= 49) age_category = "45-49";
+    else if (age >= 50 && age <= 54) age_category = "50-54";
+    else if (age >= 55 && age <= 59) age_category = "55-59";
+    else if (age >= 60 && age <= 64) age_category = "60-64";
+    else if (age >= 65 && age <= 69) age_category = "65-69";
+    else if (age >= 70 && age <= 74) age_category = "70-74";
+    else if (age >= 75 && age <= 79) age_category = "75-79";
+    else if (age >= 80) age_category = "80+";
+
+    const updatedProfile = { ...newProfile, bmi, age_category };
+    setProfile(updatedProfile);
+    localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
   };
 
+  const clearProfile = () => {
+    setProfile(defaultProfile);
+    localStorage.removeItem("userProfile");
+  };
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile, clearProfile }}>
       {children}
     </ProfileContext.Provider>
   );
