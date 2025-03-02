@@ -1,14 +1,18 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_file
 import random
 import openai
 import os
+from google.cloud import texttospeech
 
 app = Flask(__name__)
 
 # Set up your OpenAI API key (ensure you replace with your actual key)
-openai.api_key = "key"
+openai.api_key = ""
 
-print(f"OpenAI API Key: {openai.api_key}")
+# Your Google Text-to-Speech API key
+GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"
+
+# print(f"OpenAI API Key: {openai.api_key}")
 
 # Player health condition and risk level (these should come from your AI model)
 game_state = {
@@ -45,31 +49,26 @@ def generate_commentary():
 
     print(f"Received battle log for commentary: {battle_log}")
 
-    if not openai.api_key:
-        print("Error: OpenAI API key is not set!")
-        return jsonify({"commentary": "Unable to generate commentary at this time. (No API Key)"})
-
     try:
-        # Use a shorter and more direct prompt for a very short response
+        # Generate short and dynamic commentary with OpenAI
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a fast-paced and very concise game commentator. Keep responses very short, ideally one short sentence. Here is either the ability used or the effect done"},
+                {"role": "system", "content": "You are a fast-paced and exciting game commentator. Generate a short commentary maybe few words to one sentence."},
                 {"role": "user", "content": f"Very short commentary: '{battle_log}'"}
             ],
-            max_tokens=20,  # Further reduce max tokens for ultra-short responses
-            temperature=0.5
+            max_tokens=20,
+            temperature=0.8
         )
 
         commentary = response.choices[0].message.content.strip()
-        print(f"Generated commentary: {commentary}")  # Print to terminal only
+        print(f"Generated commentary: {commentary}")
+
         return jsonify({"commentary": commentary})
 
     except Exception as e:
         print(f"Error generating commentary: {e}")
-        return jsonify({"commentary": "Unable to generate commentary at this time."})
-
-
+        return jsonify({"commentary": "Wow! This exciting battle makes me speechless!"})
 
 @app.route('/attack', methods=['POST'])
 def attack():
@@ -249,6 +248,7 @@ def reset():
     # Scale monster stats based on risk
     base_monster_attack = 10
     base_monster_hp = 50
+    base_player_hp = 50
 
     monster_attack = int(base_monster_attack * (1 + risk_percentage / 100))
     monster_hp = int(base_monster_hp * (1 + risk_percentage / 200))
@@ -304,7 +304,6 @@ def reset():
             game_state["message"] += " 😴 Debuff: Fatigue! 50% chance to deal half damage."
 
     # Update `game_state` with buffs and debuffs
-    base_player_hp = 50
     game_state["player"].update({
         "hp": base_player_hp + food_health_bonus,
         "max_hp": base_player_hp + food_health_bonus,
