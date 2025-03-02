@@ -3,14 +3,15 @@ import random
 import openai
 import os
 from google.cloud import texttospeech
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+# ✅ Enable CORS for all routes
+CORS(app)  # Allow all origins
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # If you want to limit it to React only
 # Set up your OpenAI API key (ensure you replace with your actual key)
 openai.api_key = ""
-
-# Your Google Text-to-Speech API key
-GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"
 
 # print(f"OpenAI API Key: {openai.api_key}")
 
@@ -182,6 +183,7 @@ def enemy_turn():
         "message": game_state["message"]
     })
 
+
 @app.route('/get_status', methods=['GET'])
 def get_status():
     """Returns player buffs, debuffs, and monster scaling details with enhanced visual presentation."""
@@ -201,7 +203,7 @@ def get_status():
     # Buffs and Debuffs with Icons and Formatting
     player_effects = [
         f"🏋️ <strong>Exercise:</strong> {num_exercise} sessions. {'💪 <span class=\"buff\">Buff:</span> +' + str(num_exercise * (4 if num_exercise > 3 else 3)) + ' to attack.' if num_exercise > 0 else '❌ <span class=\"debuff\">Debuff:</span> -5 to attack (No exercise).'}",
-        f"🍎 <strong>Nutrition:</strong> {food_nutrition}. {'🍀 <span class=\"buff\">Add 50 to health</span> and +5 HP regen' if food_nutrition == 'Very high' else ('🍏 <span class=\"buff\">Add 30 to health</span>' if food_nutrition == 'High' else ('😐 No bonus' if food_nutrition == 'Low' else '⚠️ <span class=\"debuff\">Debuff:</span> -20 health, chance to skip turn'))}"
+        f"🍎 <strong>Nutrition:</strong> {food_nutrition}. {'🍀 <span class=\"buff\">Add 20 to health</span>' if food_nutrition == 'Very high' else ('🍏 <span class=\"buff\">Add 10 to health</span>' if food_nutrition == 'High' else ('😐 No bonus' if food_nutrition == 'Low' else '⚠️ <span class=\"debuff\">Debuff:</span> -20 health, chance to skip turn'))}"
     ]
 
     # Sleep Buffs and Debuffs
@@ -237,29 +239,63 @@ def get_status():
         "monster_effect": "<br>".join(monster_effects)
     })
 
+
+player_profile = {}  # Stores player stats from React
+
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    """Receive profile data from React and store it."""
+    global player_profile
+    player_profile = request.json
+    print("Received profile data:", player_profile)
+    return jsonify({"message": "Profile updated successfully"}), 200
+
 @app.route('/reset', methods=['POST'])
 def reset():
     """Resets the game state and initializes dynamic buffs and debuffs based on health habits."""
-    global game_state
+    global game_state, player_profile
 
-    # Simulate ML model output (Replace with actual ML model result)
-    risk_percentage = random.randint(0, 100)  
+    # data = request.get_json()
+
+    # 🎯 Extract relevant values from ProfileContext
+    num_exercise = int(player_profile.get("exercise", 0))
+    meal_log = player_profile.get("mealLog", [])  # 🔹 Get meal log from frontend
+    sleep_hours = int(player_profile.get("sleep_hours", 7)) 
+    risk_percentage = float(player_profile.get("risk_score", 0))
+    risk_percentage = round(risk_percentage*100, 3)  # Convert to percentage
+
+    avg_food_health_score = sum(meal["healthScore"] for meal in meal_log) / len(meal_log) if meal_log else 0.5  # Default to 0.5 if empty
+
+    if avg_food_health_score < 0.25:
+        food_nutrition = "Very Low"
+    elif avg_food_health_score <= 0.5:
+        food_nutrition = "Low"
+    elif avg_food_health_score < 0.75:
+        food_nutrition = "High"
+    else:
+        food_nutrition = "Very high"
 
     # Scale monster stats based on risk
     base_monster_attack = 10
-    base_monster_hp = 50
+    base_monster_hp = 60
     base_player_hp = 50
 
-    monster_attack = int(base_monster_attack * (1 + risk_percentage / 100))
-    monster_hp = int(base_monster_hp * (1 + risk_percentage / 200))
+    # Non-linear scaling for monster stats
+    # Using (risk_percentage / 10)² to create a non-linear difficulty curve
+    scaling_factor = (risk_percentage / 10) ** 2
 
-    # Determine risk level based on risk percentage
-    risk_level = "Low" if risk_percentage < 33 else "Medium" if risk_percentage < 66 else "High"
+    # Apply scaling factor
+    monster_attack = int(base_monster_attack * (1 + scaling_factor))
+    monster_hp = int(base_monster_hp * (1 + scaling_factor / 2))
 
-    # Example player stats (Replace these with real AI inputs)
-    num_exercise = 5
-    food_nutrition = "High"
-    sleep_hours = 8
+    # Determine risk level based on the new risk percentage
+    if risk_percentage < 10:
+        risk_level = "Low"
+    elif risk_percentage < 20:
+        risk_level = "Moderate"
+    else:
+        risk_level = "High"
+
     crit_chance_bonus = 0
 
     # 🏋️ Exercise Buffs and Debuffs
@@ -275,7 +311,7 @@ def reset():
 
     # 🍔 Food Nutrition Buffs and Debuffs   
     if food_nutrition == "Very high":
-        food_health_bonus = 30
+        food_health_bonus = 20
         game_state["player"]["hp"] += 5
         game_state["message"] += " 🍀 Buff: High Nutrition! +5 HP regen per turn."
     elif food_nutrition == "High":
@@ -328,4 +364,4 @@ def reset():
     return jsonify(game_state)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
