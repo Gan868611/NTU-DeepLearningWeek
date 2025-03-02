@@ -1,3 +1,5 @@
+const GOOGLE_API_KEY = "";
+
 function showAttackMenu() {
     document.getElementById("main-menu").style.display = "none";
     document.getElementById("attack-menu").style.display = "flex";
@@ -42,7 +44,9 @@ function attack(ability) {
 
             if (data.monster.hp <= 0) {
                 setTimeout(() => {
-                    document.getElementById("battle-log").innerText = "🎉 Victory! Your healthy choices made you stronger. Keep it up! 💪";
+                    const winMessage = "🎉 Victory! Your healthy choices made you stronger. Keep it up! 💪";
+                    document.getElementById("battle-log").innerText = winMessage;
+                    fetchCommentary(winMessage); // Add commentary for win
                     playWinSound();
                 }, 1000); // Add a 1-second delay to allow the attack animation to complete
                 return;
@@ -58,22 +62,42 @@ function attack(ability) {
                             updateGameState(data);
 
                             if (data.player.hp <= 0) {
+                                // Extracts only the ability name from the full message
+                                const fullMessage = data.message;
+                                const abilityMatch = fullMessage.match(/Monster used (.*?) You lost/);
+                            
+                                if (abilityMatch && abilityMatch[1]) {
+                                    const sanitizedAbility = abilityMatch[1].trim().replace(/!$/, '');
+                                    console.log(`Sanitized ability name: ${sanitizedAbility}`);
+                                    // Play attack animation but do not double trigger the hit flash and sound
+                                    enemyAttack(sanitizedAbility, fullMessage);
+                                }
+                            
+                                // Delay to show animation before displaying the lose message
                                 setTimeout(() => {
-                                    document.getElementById("battle-log").innerText = "💔 Defeated! Don't give up—stay healthy and try again! Ask the AI chatbot for tips.";
+                                    if (!abilityMatch) {
+                                        triggerHitFlash('player-img'); // Only trigger if not done by enemyAttack
+                                        playHitSound(); // Play hit sound before lose
+                                    }
+                                }, 500);
+                            
+                                setTimeout(() => {
+                                    const loseMessage = "💔 Defeated! Don't give up—stay healthy and try again! Ask the AI chatbot for tips.";
+                                    document.getElementById("battle-log").innerText = loseMessage;
+                                    fetchCommentary(loseMessage);
                                     playLoseSound();
-                                }, 1000); // Add a 1-second delay to allow the attack animation to complete
+                                }, 1500); // Increased delay to 1.5s to match animation duration
                                 return;
                             }
-
+                            
                             // Extracts only the ability name from the full message
                             const fullMessage = data.message;
                             const abilityMatch = fullMessage.match(/Monster used (.*?) You lost/);
 
                             if (abilityMatch && abilityMatch[1]) {
-                                // Sanitize the ability name by removing trailing exclamation mark and whitespace
                                 const sanitizedAbility = abilityMatch[1].trim().replace(/!$/, '');
                                 console.log(`Sanitized ability name: ${sanitizedAbility}`);
-                                enemyAttack(sanitizedAbility, fullMessage);
+                                // enemyAttack(sanitizedAbility, fullMessage);
                             } else {
                                 console.warn("Could not extract the monster ability name from the message.");
                             }
@@ -152,13 +176,13 @@ function updateGameState(data) {
         triggerHitFlash('monster-img');
         playHitSound();
 
-        if (monsterHp <= 0) {
-            setTimeout(() => {
-                document.getElementById("battle-log").innerText = "You won! The monster is defeated.";
-                playWinSound();
-            }, 1000); // Delay win message to allow animation and hit sound to complete
-            return;
-        }
+        // if (monsterHp <= 0) {
+        //     setTimeout(() => {
+        //         document.getElementById("battle-log").innerText = "You won! The monster is defeated.";
+        //         playWinSound();
+        //     }, 1000); // Delay win message to allow animation and hit sound to complete
+        //     return;
+        // }
     }
 
     // Play hit sound and trigger hit flash for player when hit
@@ -167,13 +191,13 @@ function updateGameState(data) {
         triggerScreenShake();
         playHitSound();
 
-        if (playerHp <= 0) {
-            setTimeout(() => {
-                document.getElementById("battle-log").innerText = "You lost! The monster defeated you.";
-                playLoseSound();
-            }, 1000); // Delay lose message to allow animation and hit sound to complete
-            return;
-        }
+        // if (playerHp <= 0) {
+        //     setTimeout(() => {
+        //         document.getElementById("battle-log").innerText = "You lost! The monster defeated you.";
+        //         playLoseSound();
+        //     }, 1000); // Delay lose message to allow animation and hit sound to complete
+        //     return;
+        // }
     }
 }
 
@@ -324,15 +348,87 @@ function fetchCommentary(logMessage) {
     .catch(error => console.error("Error fetching commentary:", error));
 }
 
+let speechQueue = [];
+let isSpeaking = false;
 
-// Function to speak out the commentary
-function speakCommentary(commentary) {
-    const synth = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(commentary);
-    utterance.lang = 'en-US';  
-    utterance.rate = 2.5;  // Increase rate for faster speech (1.0 is normal, up to 2.0 for faster)
-    utterance.pitch = 1.0;  // Optional: Keep the pitch normal
-    synth.speak(utterance);
+function fetchCommentary(logMessage) {
+    fetch('/generate_commentary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ log: logMessage })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Commentary:", data.commentary);
+        queueSpeech(data.commentary);
+    })
+    .catch(error => console.error("Error fetching commentary:", error));
+}
+
+// Add commentary to the queue
+function queueSpeech(text) {
+    speechQueue.push(text);
+    if (!isSpeaking) {
+        playNextInQueue();
+    }
+}
+
+// Play the next commentary in the queue
+function playNextInQueue() {
+    if (speechQueue.length === 0) {
+        isSpeaking = false;
+        return;
+    }
+
+    isSpeaking = true;
+    const text = speechQueue.shift();
+    playGoogleTTS(text);
+}
+
+// Function to play commentary using Google TTS API
+function playGoogleTTS(text) {
+    const ttsUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_API_KEY}`;
+    const payload = {
+        input: { text: text },
+        voice: {
+            languageCode: "en-US",
+            name: "en-US-Wavenet-D" // Choose an exciting voice
+        },
+        audioConfig: {
+            audioEncoding: "MP3",
+            speakingRate: 1.8, // Speed up for excitement
+            pitch: 2 // Slightly higher pitch for energy
+        }
+    };
+
+    fetch(ttsUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.audioContent) {
+            const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
+            
+            // When the audio finishes, play the next in the queue
+            audio.onended = () => {
+                isSpeaking = false;
+                playNextInQueue();
+            };
+
+            audio.play();
+        } else {
+            console.error("No audio content received from TTS API");
+            isSpeaking = false;
+            playNextInQueue();
+        }
+    })
+    .catch(error => {
+        console.error("Error with Google TTS API:", error);
+        isSpeaking = false;
+        playNextInQueue();
+    });
 }
 
 // Automatically reset game on page load or React component mount
