@@ -252,6 +252,9 @@ function resetGame() {
         .catch(error => console.error("Error resetting game:", error));
 }
 
+// ✅ Expose function so it can be called from the parent (iframe)
+window.resetGame = resetGame;
+
 function triggerHitFlash(target) {
     const element = document.getElementById(target);
     element.classList.add('hit-flash');
