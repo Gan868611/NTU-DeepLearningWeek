@@ -57,6 +57,8 @@ print(outputs)
 import numpy as np
 
 def compute_health_score(calories, mass, fat, carb, protein):
+
+   
     # Convert numpy arrays to scalars (if needed)
     calories = float(calories) if isinstance(calories, np.ndarray) else calories
     mass = float(mass) if isinstance(mass, np.ndarray) else mass
@@ -171,8 +173,10 @@ print('fat: ', fat)
 print('carb: ', carb)
 print('protein: ',protein)
 
-
+if any(val < 0 for val in [calories, mass, fat, carb, protein]):
+    print("This might not be a food image, Please upload again.")
+else:
 # Compute health score
-health_score = compute_health_score(calories, mass, fat, carb, protein)
+    health_score = compute_health_score(calories, mass, fat, carb, protein)
 
-print(f"🍎 Health Score: {health_score} (0 = Unhealthy, 1 = Healthy)")
+    print(f"🍎 Health Score: {health_score} (0 = Unhealthy, 1 = Healthy)")
