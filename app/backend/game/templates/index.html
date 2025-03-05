@@ -15,7 +15,7 @@
             <div class="monster-container" onmouseover="showTooltip(event, 'monster')" onmousemove="moveTooltip(event, 'monster')" onmouseout="hideTooltip('monster')">
                 <img src="{{ url_for('static', filename='images/monster.png') }}" id="monster-img" alt="Monster">
                 <div class="status-box">
-                    Monster HP: <span id="monster-hp-text">100/100</span>
+                    Monster HP: <span id="monster-hp-text">50/50</span>
                     <div class="hp-bar-container">
                         <div class="hp-bar" id="monster-hp"></div>
                     </div>
@@ -25,7 +25,7 @@
             <div class="player-container" onmouseover="showTooltip(event, 'player')" onmousemove="moveTooltip(event, 'player')" onmouseout="hideTooltip('player')">
                 <img src="{{ url_for('static', filename='images/player.png') }}" id="player-img" alt="Player">
                 <div class="status-box">
-                    Player HP: <span id="player-hp-text">100/100</span>
+                    Player HP: <span id="player-hp-text">50/50</span>
                     <div class="hp-bar-container">
                         <div class="hp-bar" id="player-hp"></div>
                     </div>

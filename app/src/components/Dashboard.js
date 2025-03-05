@@ -5,6 +5,8 @@ import Character from "./Character";
 import Monster from "./Monster";
 import "../styles.css";
 
+const API_BASE_URL = process.env.REACT_APP_CHATBOT_API_BASE_URL || "http://127.0.0.1:8000";  // Fallback to localhost if not set
+
 const Dashboard = ({ healthRisk, countdown }) => {
   const { profile } = useContext(ProfileContext);
   const healthRiskLevel = (profile.risk_score * 300) || 10; // Default value if not calculated yet
@@ -45,7 +47,7 @@ const Dashboard = ({ healthRisk, countdown }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/chat", {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, healthInfo: profile }),

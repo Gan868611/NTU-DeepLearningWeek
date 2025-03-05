@@ -7,7 +7,9 @@ from flask_session import Session
 
 app = Flask(__name__)
 
-openai.api_key = "key"
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+if not openai.api_key:
+    print("⚠️ OpenAI API Key is missing! Please set the environment variable.")
 
 # ✅ Ensure Flask Session Uses File System
 app.config["SESSION_TYPE"] = "filesystem"  # Store sessions in a file
@@ -102,5 +104,7 @@ def chat():
 
     return jsonify({"reply": bot_reply})
 
+PORT = int(os.environ.get("PORT", 5002))  # Use Railway's assigned port
+
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=PORT)

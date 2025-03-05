@@ -1,16 +1,14 @@
 flask
-random
+ultralytics
 openai==0.28
-os
 flask_cors
 flask_session
 fastapi
 uvicorn
 numpy
-opencv-python
+opencv-python-headless
 pandas
-ultralytics
-tensorflow
+tensorflow-cpu
 keras
 requests
 torch
@@ -18,3 +16,6 @@ scikit-learn
 joblib
 pydantic
 python-multipart
+numpy
+gunicorn
+google-cloud-texttospeech

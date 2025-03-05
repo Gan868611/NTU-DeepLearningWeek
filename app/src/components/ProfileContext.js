@@ -4,11 +4,11 @@ export const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
   const defaultProfile = {
-    age: "",
-    weight: "",
-    height: "",
-    bmi: "", // Auto-calculated
-    age_category: "", // Auto-determined
+    age: "30",
+    weight: "60",
+    height: "170",
+    bmi: "20.8", // Auto-calculated
+    age_category: "30-34", // Auto-determined
     cancer_history: "No Cancer",
     diabetes_status: "No Diabetes",
     exercise: 5, // 🔹 Store exercise count (default 0)
@@ -17,9 +17,11 @@ export const ProfileProvider = ({ children }) => {
     arthritis: "No",
     sex: "Male",
     smoking_history: "Never smoked",
-    alcohol_days: "", // User enters days per month
-    risk_score: null, // New state for Health Risk Score
-    mealLog: [], // 🔹 New: Meal log storage
+    alcohol_days: "3", // User enters days per month
+    risk_score: "0.041", // New state for Health Risk Score
+    mealLog: [{'id': 1740930815832, 'calories': 557.04, 'mass': 240.86, 'fat': 31.61, 'carb': 40.97, 'protein': 5.02, 'healthScore': 0.5}, 
+      {'id': 1740861878803, 'calories': 277.06, 'mass': 555.33, 'fat': 64.33, 'carb': 39.76, 'protein': 5.17, 'healthScore': 0.72}, 
+      {'id': 1740861869863, 'calories': 740.22, 'mass': 653.95, 'fat': 67.86, 'carb': 76.32, 'protein': 15.72, 'healthScore': 0.66}],
   };
 
   const [profile, setProfile] = useState(defaultProfile);

@@ -1,47 +1,132 @@
-from flask import Flask, render_template, jsonify, request, send_file
+from flask import Flask, render_template, jsonify, request, send_file, session, redirect, url_for, make_response
 import random
 import openai
 import os
 from google.cloud import texttospeech
 from flask_cors import CORS
+from flask_session import Session
+import uuid
 
 app = Flask(__name__)
 
+# Configure Flask-Session
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "./flask_sessions"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
+app.config["SESSION_COOKIE_DOMAIN"] = "to be updated"
+app.config["SERVER_NAME"] = "to be updated"
+
+# Initialize Flask-Session
+Session(app)
+
 # ✅ Enable CORS for all routes
-CORS(app)  # Allow all origins
+CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # If you want to limit it to React only
 # Set up your OpenAI API key (ensure you replace with your actual key)
-openai.api_key = ""
 
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+if not openai.api_key:
+    print("⚠️ OpenAI API Key is missing! Please set the environment variable.")
+# print(f"OpenAI API Key: {openai.api_key}")
 
 # Player health condition and risk level (these should come from your AI model)
-game_state = {
-    "player": {
-        "name": "Player",
-        "hp": 100,
-        "max_hp": 100,
-        "attack": 20,
-        "health_status": "Healthy",
-        "num_exercise": 0,  # ✅ Add default value to prevent KeyError
-        "food_nutrition": "Unknown",  # ✅ Default value
-        "sleep_hours": 0,  # ✅ Default value
-        "crit_chance": 0  # ✅ Default value
-    },
-    "monster": {
-        "name": "Enemy",
-        "hp": 100,
-        "max_hp": 100,
-        "attack": 15,
-        "risk_percentage": 50  # Default risk percentage
-    },
-    "turn": "player",
-    "message": "Battle begins!"
-}
+# game_state = {
+#     "player": {
+#         "name": "Player",
+#         "hp": 100,
+#         "max_hp": 100,
+#         "attack": 20,
+#         "health_status": "Healthy",
+#         "num_exercise": 0,  # ✅ Add default value to prevent KeyError
+#         "food_nutrition": "Unknown",  # ✅ Default value
+#         "sleep_hours": 0,  # ✅ Default value
+#         "crit_chance": 0  # ✅ Default value
+#     },
+#     "monster": {
+#         "name": "Enemy",
+#         "hp": 100,
+#         "max_hp": 100,
+#         "attack": 15,
+#         "risk_percentage": 50  # Default risk percentage
+#     },
+#     "turn": "player",
+#     "message": "Battle begins!"
+# }
+
+@app.route("/set-session")
+def set_session():
+    session["user"] = "some_unique_id"
+    response = make_response({"message": "Session set!"})
+    response.set_cookie("session_id", "some_unique_id", 
+                        secure=True, httponly=True, samesite="None")  # Ensure secure cookie settings
+    return response
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if "session_id" not in session:
+        session["session_id"] = str(uuid.uuid4())
+        # Initialize the game state in the session
+        session["game_state"] = {
+            "player": {
+                "hp": 50,
+                "max_hp": 50,
+                "crit_chance": 10,
+                "num_exercise": 0,
+                "food_nutrition": "Medium",
+                "sleep_hours": 8
+            },
+            "monster": {
+                "hp": 50,
+                "max_hp": 50,
+                "attack": 15,
+                "risk_percentage": 15
+            },
+            "turn": "player",
+            "message": "Battle begins!"
+        }
+    game_url = url_for("game", session_id=session["session_id"], _external=True)
+    return jsonify({"game_url": game_url})
 
+@app.route('/game/<session_id>')
+def game(session_id):
+    """Serve a unique game instance for each session."""
+    if session.get("session_id") != session_id:
+        return "Invalid session!", 400
+    return render_template('index.html', session_id=session_id)
+
+# @app.route('/generate_commentary', methods=['POST'])
+# def generate_commentary():
+#     data = request.json
+#     battle_log = data.get('log', '')
+
+#     print(f"Received battle log for commentary: {battle_log}")
+
+#     try:
+#         # Generate short and dynamic commentary with OpenAI
+#         response = openai.ChatCompletion.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {"role": "system", "content": "You are a fast-paced and exciting game commentator. Generate a short commentary maybe few words to one sentence."},
+#                 {"role": "user", "content": f"Very short commentary: '{battle_log}'"}
+#             ],
+#             max_tokens=20,
+#             temperature=0.8
+#         )
+
+#         commentary = response.choices[0].message.content.strip()
+#         print(f"Generated commentary: {commentary}")
+
+#         return jsonify({"commentary": commentary})
+
+#     except Exception as e:
+#         print(f"Error generating commentary: {e}")
+#         return jsonify({"commentary": "Wow! This exciting battle makes me speechless!"})
+
+#browser api
 @app.route('/generate_commentary', methods=['POST'])
 def generate_commentary():
     data = request.json
@@ -49,31 +134,60 @@ def generate_commentary():
 
     print(f"Received battle log for commentary: {battle_log}")
 
+    if not openai.api_key:
+        print("Error: OpenAI API key is not set!")
+        return jsonify({"commentary": "Unable to generate commentary at this time. (No API Key)"})
+
     try:
-        # Generate short and dynamic commentary with OpenAI
+        # Use a shorter and more direct prompt for a very short response
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a fast-paced and exciting game commentator. Generate a short commentary maybe few words to one sentence."},
+                {"role": "system", "content": "You are a fast-paced and exciting game commentator. Generate a short commentary maybe few words to one sentence. Here is either the ability used or the effect done"},
                 {"role": "user", "content": f"Very short commentary: '{battle_log}'"}
             ],
-            max_tokens=20,
-            temperature=0.8
+            max_tokens=20,  # Further reduce max tokens for ultra-short responses
+            temperature=0.5
         )
 
         commentary = response.choices[0].message.content.strip()
-        print(f"Generated commentary: {commentary}")
-
+        print(f"Generated commentary: {commentary}")  # Print to terminal only
         return jsonify({"commentary": commentary})
 
     except Exception as e:
         print(f"Error generating commentary: {e}")
-        return jsonify({"commentary": "Wow! This exciting battle makes me speechless!"})
+        return jsonify({"commentary": "Unable to generate commentary at this time."})
 
 @app.route('/attack', methods=['POST'])
 def attack():
     """Handles player's attack with buffs and debuffs applied dynamically."""
-    global game_state
+    """Handles player's attack with buffs and debuffs applied dynamically per session."""
+    if "session_id" not in session:
+        return jsonify({"error": "Invalid session!"}), 400
+
+    game_state = session.get("game_state", {
+            "player": {
+            "name": "Player",
+            "hp": 50,
+            "max_hp": 50,
+            "attack": 20,
+            "health_status": "Healthy",
+            "num_exercise": 0,  # ✅ Add default value to prevent KeyError
+            "food_nutrition": "High",  # ✅ Default value
+            "sleep_hours": 7,  # ✅ Default value
+            "crit_chance": 0  # ✅ Default value
+        },
+        "monster": {
+            "name": "Enemy",
+            "hp": 50,
+            "max_hp": 50,
+            "attack": 15,
+            "risk_percentage": 15  # Default risk percentage
+        },
+        "turn": "player",
+        "message": "Battle begins!"
+    })
+
     data = request.get_json()
     ability = data.get('ability', 'Attack')
 
@@ -130,6 +244,10 @@ def attack():
         else:
             game_state["message"] = f"You used {ability}! Monster lost {damage} HP. {event_message}"
             game_state["turn"] = "enemy"
+
+    # Store the updated game state back in the session
+    session["game_state"] = game_state
+
     return jsonify({
         "player": {
             "hp": game_state["player"]["hp"],
@@ -146,7 +264,16 @@ def attack():
 @app.route('/enemy_turn', methods=['POST'])
 def enemy_turn():
     """Handles enemy's attack with randomized abilities."""
-    global game_state
+    """Handles enemy's attack with randomized abilities per session."""
+    if "session_id" not in session:
+        return jsonify({"error": "Invalid session!"}), 400
+
+    game_state = session.get("game_state", {
+        "player": {"hp": 50, "max_hp": 50},
+        "monster": {"hp": 50, "max_hp": 50},
+        "turn": "player",
+        "message": ""
+    })
 
     # Define random monster attack power and abilities
     monster_attacks = {
@@ -170,6 +297,9 @@ def enemy_turn():
             game_state["message"] = f"Monster used {selected_attack}! You lost {damage} HP."
             game_state["turn"] = "player"
 
+    # Store the updated game state back in the session
+    session["game_state"] = game_state
+
     return jsonify({
         "player": {
             "hp": game_state["player"]["hp"],
@@ -186,7 +316,13 @@ def enemy_turn():
 @app.route('/get_status', methods=['GET'])
 def get_status():
     """Returns player buffs, debuffs, and monster scaling details with enhanced visual presentation."""
-    global game_state
+    # Retrieve the game state from the session
+    game_state = session.get("game_state", {
+        "player": {},
+        "monster": {},
+        "turn": "player",
+        "message": ""
+    })
 
     # Fetch player stats
     num_exercise = game_state["player"].get("num_exercise", 0)
@@ -197,7 +333,7 @@ def get_status():
     # Monster stats
     risk_percentage = game_state["monster"].get("risk_percentage", 50)
     monster_attack = game_state["monster"].get("attack", 15)
-    monster_hp = game_state["monster"].get("hp", 100)
+    monster_hp = game_state["monster"].get("hp", 50)
 
     # Buffs and Debuffs with Icons and Formatting
     player_effects = [
@@ -241,20 +377,37 @@ def get_status():
 
 player_profile = {}  # Stores player stats from React
 
+# @app.route('/update-profile', methods=['POST'])
+# def update_profile():
+#     """Receive profile data from React and store it."""
+#     global player_profile
+#     player_profile = request.json
+#     print("Received profile data:", player_profile)
+#     return jsonify({"message": "Profile updated successfully"}), 200
+
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
-    """Receive profile data from React and store it."""
-    global player_profile
-    player_profile = request.json
-    print("Received profile data:", player_profile)
-    return jsonify({"message": "Profile updated successfully"}), 200
+    """Update player profile within the session."""
+    session["player_profile"] = request.json
+    return jsonify({"message": "Profile updated successfully"})
 
 @app.route('/reset', methods=['POST'])
 def reset():
     """Resets the game state and initializes dynamic buffs and debuffs based on health habits."""
-    global game_state, player_profile
+    """Resets the game state and initializes dynamic buffs and debuffs based on health habits."""
+    if "session_id" not in session:
+        return jsonify({"error": "Invalid session!"}), 400
+    
+    # Retrieve existing game state or initialize a new one
+    game_state = session.get("game_state", {
+        "player": {"hp": 100, "max_hp": 100, "crit_chance": 10, "num_exercise": 0, "food_nutrition": "Medium", "sleep_hours": 8},
+        "monster": {"hp": 100, "max_hp": 100},
+        "turn": "player",
+        "message": ""
+    })
 
-    # data = request.get_json()
+    # Retrieve player profile from session
+    player_profile = session.get("player_profile", {})
 
     # 🎯 Extract relevant values from ProfileContext
     num_exercise = int(player_profile.get("exercise", 0))
@@ -276,8 +429,8 @@ def reset():
 
     # Scale monster stats based on risk
     base_monster_attack = 10
-    base_monster_hp = 60
-    base_player_hp = 50
+    base_monster_hp = 40
+    base_player_hp = 40
 
     # Non-linear scaling for monster stats
     # Using (risk_percentage / 10)² to create a non-linear difficulty curve
@@ -360,7 +513,14 @@ def reset():
     game_state["turn"] = "player"
     game_state["message"] = f"Your health stats have been applied. Monster risk: {risk_percentage}%."
 
+    # Store the updated game state back in the session
+    session["game_state"] = game_state
+
     return jsonify(game_state)
 
+# if __name__ == '__main__':
+#     app.run(host="127.0.0.1", port=5000, debug=True)
+PORT = int(os.environ.get("PORT", 5001))  # Use Railway's assigned port
+
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=PORT)

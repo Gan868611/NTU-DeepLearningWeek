@@ -1,5 +1,3 @@
-const GOOGLE_API_KEY = "";
-
 function showAttackMenu() {
     document.getElementById("main-menu").style.display = "none";
     document.getElementById("attack-menu").style.display = "flex";
@@ -97,7 +95,7 @@ function attack(ability) {
                             if (abilityMatch && abilityMatch[1]) {
                                 const sanitizedAbility = abilityMatch[1].trim().replace(/!$/, '');
                                 console.log(`Sanitized ability name: ${sanitizedAbility}`);
-                                // enemyAttack(sanitizedAbility, fullMessage);
+                                enemyAttack(sanitizedAbility, fullMessage);
                             } else {
                                 console.warn("Could not extract the monster ability name from the message.");
                             }
@@ -144,8 +142,8 @@ function runAway() {
 function updateGameState(data) {
     let playerHp = Math.max(data.player.hp, 0);
     let monsterHp = Math.max(data.monster.hp, 0);
-    let playerMaxHp = data.player.max_hp || 100;
-    let monsterMaxHp = data.monster.max_hp || 100;
+    let playerMaxHp = data.player.max_hp || 50;
+    let monsterMaxHp = data.monster.max_hp || 50;
 
     document.getElementById("player-hp").style.width = `${(playerHp / playerMaxHp) * 100}%`;
     document.getElementById("monster-hp").style.width = `${(monsterHp / monsterMaxHp) * 100}%`;
@@ -348,9 +346,90 @@ function fetchCommentary(logMessage) {
     .catch(error => console.error("Error fetching commentary:", error));
 }
 
-let speechQueue = [];
-let isSpeaking = false;
+// let speechQueue = [];
+// let isSpeaking = false;
 
+// function fetchCommentary(logMessage) {
+//     fetch('/generate_commentary', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ log: logMessage })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log("Commentary:", data.commentary);
+//         queueSpeech(data.commentary);
+//     })
+//     .catch(error => console.error("Error fetching commentary:", error));
+// }
+
+// // Add commentary to the queue
+// function queueSpeech(text) {
+//     speechQueue.push(text);
+//     if (!isSpeaking) {
+//         playNextInQueue();
+//     }
+// }
+
+// // Play the next commentary in the queue
+// function playNextInQueue() {
+//     if (speechQueue.length === 0) {
+//         isSpeaking = false;
+//         return;
+//     }
+
+//     isSpeaking = true;
+//     const text = speechQueue.shift();
+//     playGoogleTTS(text);
+// }
+
+// // Function to play commentary using Google TTS API
+// function playGoogleTTS(text) {
+//     const ttsUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_API_KEY}`;
+//     const payload = {
+//         input: { text: text },
+//         voice: {
+//             languageCode: "en-US",
+//             name: "en-US-Wavenet-D" // Choose an exciting voice
+//         },
+//         audioConfig: {
+//             audioEncoding: "MP3",
+//             speakingRate: 1.8, // Speed up for excitement
+//             pitch: 2 // Slightly higher pitch for energy
+//         }
+//     };
+
+//     fetch(ttsUrl, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.audioContent) {
+//             const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
+            
+//             // When the audio finishes, play the next in the queue
+//             audio.onended = () => {
+//                 isSpeaking = false;
+//                 playNextInQueue();
+//             };
+
+//             audio.play();
+//         } else {
+//             console.error("No audio content received from TTS API");
+//             isSpeaking = false;
+//             playNextInQueue();
+//         }
+//     })
+//     .catch(error => {
+//         console.error("Error with Google TTS API:", error);
+//         isSpeaking = false;
+//         playNextInQueue();
+//     });
+// }
+
+//browser api
 function fetchCommentary(logMessage) {
     fetch('/generate_commentary', {
         method: 'POST',
@@ -359,91 +438,39 @@ function fetchCommentary(logMessage) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Commentary:", data.commentary);
-        queueSpeech(data.commentary);
+        // Only read out the commentary, do not display it on the battle log
+        speakCommentary(data.commentary);
     })
     .catch(error => console.error("Error fetching commentary:", error));
 }
 
-// Add commentary to the queue
-function queueSpeech(text) {
-    speechQueue.push(text);
-    if (!isSpeaking) {
-        playNextInQueue();
-    }
-}
+// Function to speak out the commentary with more excitement
+function speakCommentary(commentary) {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(commentary);
+    utterance.lang = 'en-US';  
 
-// Play the next commentary in the queue
-function playNextInQueue() {
-    if (speechQueue.length === 0) {
-        isSpeaking = false;
-        return;
-    }
+    // Make the speech more dynamic
+    utterance.rate = 3.0 + Math.random() * 0.5; // Randomize rate slightly for a natural feel
+    utterance.pitch = 1.5;  // Slightly higher pitch for excitement
+    utterance.volume = 1.0;  // Max volume for clear sound
 
-    isSpeaking = true;
-    const text = speechQueue.shift();
-    playGoogleTTS(text);
-}
-
-// Function to play commentary using Google TTS API
-function playGoogleTTS(text) {
-    const ttsUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_API_KEY}`;
-    const payload = {
-        input: { text: text },
-        voice: {
-            languageCode: "en-US",
-            name: "en-US-Wavenet-D" // Choose an exciting voice
-        },
-        audioConfig: {
-            audioEncoding: "MP3",
-            speakingRate: 1.8, // Speed up for excitement
-            pitch: 2 // Slightly higher pitch for energy
-        }
-    };
-
-    fetch(ttsUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.audioContent) {
-            const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
-            
-            // When the audio finishes, play the next in the queue
-            audio.onended = () => {
-                isSpeaking = false;
-                playNextInQueue();
-            };
-
-            audio.play();
-        } else {
-            console.error("No audio content received from TTS API");
-            isSpeaking = false;
-            playNextInQueue();
-        }
-    })
-    .catch(error => {
-        console.error("Error with Google TTS API:", error);
-        isSpeaking = false;
-        playNextInQueue();
-    });
+    synth.speak(utterance);
 }
 
 // Automatically reset game on page load or React component mount
 window.onload = () => resetGame();
 
-// Apply Buff/Debuff Glow
-console.log("Battle Log Message:", data.message);  // Debug log
-if (/Buff|Critical Hit|Workout Boost|Lucky Strike/.test(data.message)) {
-    document.getElementById("player-img").classList.add("buff-glow");
-    setTimeout(() => {
-        document.getElementById("player-img").classList.remove("buff-glow");
-    }, 1000);
-} else if (/Debuff|Sluggishness|Fatigue|Poisoning|Fumbled/.test(data.message)) {
-    document.getElementById("player-img").classList.add("debuff-glow");
-    setTimeout(() => {
-        document.getElementById("player-img").classList.remove("debuff-glow");
-    }, 1000);
-}
+// // Apply Buff/Debuff Glow
+// console.log("Battle Log Message:", data.message);  // Debug log
+// if (/Buff|Critical Hit|Workout Boost|Lucky Strike/.test(data.message)) {
+//     document.getElementById("player-img").classList.add("buff-glow");
+//     setTimeout(() => {
+//         document.getElementById("player-img").classList.remove("buff-glow");
+//     }, 1000);
+// } else if (/Debuff|Sluggishness|Fatigue|Poisoning|Fumbled/.test(data.message)) {
+//     document.getElementById("player-img").classList.add("debuff-glow");
+//     setTimeout(() => {
+//         document.getElementById("player-img").classList.remove("debuff-glow");
+//     }, 1000);
+// }

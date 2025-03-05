@@ -2,6 +2,8 @@ import React, { useState, useContext } from "react";
 import { ProfileContext } from "./ProfileContext"; // 🔹 Import Profile Context
 import "../styles.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000";  // Fallback to localhost if not set
+
 const FoodRecognition = () => {
   const { profile, addMealToLog, clearMealLog } = useContext(ProfileContext); // 🔹 Use Profile Context
   const [image, setImage] = useState(null);
@@ -24,7 +26,7 @@ const FoodRecognition = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/food-recognition", {
+      const response = await fetch(`${API_BASE_URL}/food-recognition`, {
         method: "POST",
         body: formData,
       });
@@ -67,22 +69,22 @@ const FoodRecognition = () => {
       {loading && <p className="loading-message">⏳ Analyzing food...</p>}
       {error && <p className="error-message">{error}</p>}
 
-      {croppedImage && (
+      {/* {croppedImage && (
         <div>
           <h3>Cropped Image</h3>
           <img src={croppedImage} alt="Cropped Food" className="food-preview" />
         </div>
-      )}
+      )} */}
 
-      {result && (
-        <div className="food-result">
-          <p>🔥 Calories: {result.calories} kcal</p>
-          <p>⚖️ Mass: {result.mass} g</p>
-          <p>🍔 Fat: {result.fat} g</p>
-          <p>🍞 Carbs: {result.carb} g</p>
-          <p>💪 Protein: {result.protein} g</p>
-          <h3 className="health-score">🟢 Health Score: {result.health_score} / 1</h3>
-        </div>
+      {result && !error && (
+          <div className="food-result">
+              <p>🔥 Calories: {result.calories} kcal</p>
+              <p>⚖️ Mass: {result.mass} g</p>
+              <p>🍔 Fat: {result.fat} g</p>
+              <p>🍞 Carbs: {result.carb} g</p>
+              <p>💪 Protein: {result.protein} g</p>
+              <h3 className="health-score">🟢 Health Score: {result.health_score} / 1</h3>
+          </div>
       )}
 
       {/* 🔹 Display Meal Log */}

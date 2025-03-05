@@ -32,47 +32,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Function to Run Flask (`app.py`) in a Separate Thread
-def run_flask():
-    """Runs the Flask server in a separate thread."""
-    time.sleep(2)  # Give FastAPI time to start
-    subprocess.run(["python", "app.py"])  # Run Flask backend
-
-# ✅ Start Flask in a New Thread
-threading.Thread(target=run_flask, daemon=True).start()
-
-# Define Flask Chatbot URL (running in the background)
-FLASK_CHATBOT_URL = "http://127.0.0.1:5001"
-
-def start_flask():
-    """Starts the Flask chatbot (app.py) in a background process."""
-    try:
-        subprocess.run(["python", "chatbot_app.py"])  # Run Flask backend
-        # subprocess.Popen(["python", "chatbot_app.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(3)  # Give Flask time to start
-    except Exception as e:
-        print(f"Error starting Flask: {e}")
-
-# Start Flask in a background thread when FastAPI runs
-threading.Thread(target=start_flask, daemon=True).start()
-
-@app.post("/sync_profile")
-async def sync_profile(profile: dict):
-    """Send user profile data to Flask chatbot for reference."""
-    try:
-        print("🟢 Sending profile data to Flask:", profile)  # Log request
-
-        response = requests.post(f"{FLASK_CHATBOT_URL}/set_health_profile", json=profile)
-        response_data = response.json()
-
-        print("✅ Response from Flask:", response_data)  # Log response
-        return response_data
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error syncing profile: {e}")
-        raise HTTPException(status_code=500, detail=f"Error syncing profile: {str(e)}")
+torch.set_num_threads(1)  # Use 1 CPU thread for better performance
 
 # 🖥️ Disable GPU for inference
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU to avoid memory issues
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"  # Prevents TensorFlow from using too much RAM
+os.environ["ULTRALYTICS_NO_CUDA"] = "1"
 
 # 🚀 Load YOLOv11 detection model (For detecting plates)
 detection_model = YOLO("model/plate_detection.pt")  # Change to actual path
@@ -181,25 +146,31 @@ async def food_recognition(file: UploadFile = File(...)):
     cropped_img_base64 = base64.b64encode(buffer).decode("utf-8")
 
     # 🔢 Step 2: Predict Nutritional Data
-    preprocessed_img = preprocess_image(cropped_img)
+    preprocessed_img = preprocess_image(image)
     outputs = nutrition_model.predict(preprocessed_img)
 
     # Convert Outputs to Human-Readable Values
     calories, mass = float(outputs[0] * max_calorie), float(outputs[1] * max_mass)
     fat, carb, protein = float(outputs[2] * max_fat), float(outputs[3] * max_carb), float(outputs[4] * max_protein)
 
-    # Compute Health Score
-    health_score = compute_health_score(calories, mass, fat, carb, protein)
+    if any(val < 0 for val in [calories, mass, fat, carb, protein]):
+        return {
+            "error": "This might not be a food image. Please upload a valid food image."
+        }
+    else:
+        # Compute health score
+        health_score = compute_health_score(calories, mass, fat, carb, protein)
 
-    return {
-        "calories": round(calories, 2),
-        "mass": round(mass, 2),
-        "fat": round(fat, 2),
-        "carb": round(carb, 2),
-        "protein": round(protein, 2),
-        "health_score": health_score,
-        "cropped_image": f"data:image/jpeg;base64,{cropped_img_base64}"
-    }
+        return {
+            "calories": round(calories, 2),
+            "mass": round(mass, 2),
+            "fat": round(fat, 2),
+            "carb": round(carb, 2),
+            "protein": round(protein, 2),
+            "health_score": health_score,
+            "cropped_image": f"data:image/jpeg;base64,{cropped_img_base64}"
+        }
+
 
 # 🚀 Load the Trained PyTorch Model
 class HeartDiseaseNN(torch.nn.Module):

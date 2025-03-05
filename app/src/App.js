@@ -7,6 +7,8 @@ import FoodRecognition from "./components/FoodRecognition";
 import BattleStats from "./components/BattleStats";
 import WeeklyBattle from "./components/WeeklyBattle";
 import BottomNavBar from "./components/BottomNavBar";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import "./styles.css";
 
 const App = () => {
@@ -33,6 +35,8 @@ const App = () => {
         {/* Bottom Navigation Bar */}
         <BottomNavBar setScreen={setScreen} />
       </div>
+      <Analytics />
+      <SpeedInsights />
     </ProfileProvider>
   );
 };

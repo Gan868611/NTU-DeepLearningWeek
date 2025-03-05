@@ -2,6 +2,8 @@ import React, { useContext, useState } from "react";
 import { ProfileContext } from "./ProfileContext";
 import "./HealthProfile.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000";  // Fallback to localhost if not set
+
 const HealthProfile = () => {
   const { profile, updateProfile, clearProfile, updateRiskLevel } = useContext(ProfileContext);
   const [riskScore, setRiskScore] = useState(null);
@@ -18,7 +20,7 @@ const HealthProfile = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/health-risk", {
+      const response = await fetch(`${API_BASE_URL}/health-risk`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
